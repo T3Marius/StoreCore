@@ -1,0 +1,16 @@
+C:\Users\mariu\Documents\GitHub\StoreCore\BuildOutput\plugins\StoreCore\StoreCore.deps.json
+C:\Users\mariu\Documents\GitHub\StoreCore\BuildOutput\plugins\StoreCore\StoreCore.dll
+C:\Users\mariu\Documents\GitHub\StoreCore\BuildOutput\plugins\StoreCore\StoreCore.pdb
+C:\Users\mariu\Documents\GitHub\StoreCore\StoreCore\obj\Debug\StoreCore.csproj.AssemblyReference.cache
+C:\Users\mariu\Documents\GitHub\StoreCore\StoreCore\obj\Debug\StoreCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mariu\Documents\GitHub\StoreCore\StoreCore\obj\Debug\StoreCore.AssemblyInfoInputs.cache
+C:\Users\mariu\Documents\GitHub\StoreCore\StoreCore\obj\Debug\StoreCore.AssemblyInfo.cs
+C:\Users\mariu\Documents\GitHub\StoreCore\StoreCore\obj\Debug\StoreCore.csproj.CoreCompileInputs.cache
+C:\Users\mariu\Documents\GitHub\StoreCore\StoreCore\obj\Debug\StoreCore.csproj.Up2Date
+C:\Users\mariu\Documents\GitHub\StoreCore\StoreCore\obj\Debug\StoreCore.dll
+C:\Users\mariu\Documents\GitHub\StoreCore\StoreCore\obj\Debug\refint\StoreCore.dll
+C:\Users\mariu\Documents\GitHub\StoreCore\StoreCore\obj\Debug\StoreCore.pdb
+C:\Users\mariu\Documents\GitHub\StoreCore\StoreCore\obj\Debug\ref\StoreCore.dll
+C:\Users\mariu\Documents\GitHub\StoreCore\BuildOutput\plugins\StoreCore\Dapper.dll
+C:\Users\mariu\Documents\GitHub\StoreCore\BuildOutput\plugins\StoreCore\lang\en.json
+C:\Users\mariu\Documents\GitHub\StoreCore\BuildOutput\plugins\StoreCore\MySqlConnector.dll
