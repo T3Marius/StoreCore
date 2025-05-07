@@ -70,27 +70,56 @@ public static class Commands
         if (player == null)
             return;
 
-        Menu menu = new Menu(player, Instance)
+        switch (Instance.Config.MainConfig.MenuType)
         {
-            Title = Instance.Localizer.ForPlayer(player, "resetcredits<confirm>"),
-            HasExitButon = false,
-        };
+            case "t3":
+            case "t3menu":
+                var manager = Instance.GetMenuManager();
+                if (manager == null)
+                    return;
 
-        menu.AddItem(Instance.Localizer.ForPlayer(player, "confirm<yes>"), (p, option) =>
-        {
-            List<CCSPlayerController> players = Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV).ToList();
-            foreach (var player in players)
-            {
-                STORE_API.SetClientCredits(player, 0);
-                p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["credits.reset", players.Count]);
-                menu.Close(p);
-            }
-        });
-        menu.AddItem(Instance.Localizer.ForPlayer(player, "confirm<no>"), (p, option) =>
-        {
-            menu.Close(p);
-        });
-        menu.Display();
+                var t3menu = manager.CreateMenu(Instance.Localizer.ForPlayer(player, "resetcredits<confirm>"));
+                t3menu.AddOption(Instance.Localizer.ForPlayer(player, "confirm<yes>"), (p, option) =>
+                {
+                    List<CCSPlayerController> players = Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV).ToList();
+                    foreach (var player in players)
+                    {
+                        STORE_API.SetClientCredits(player, 0);
+                        p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["credits.reset", players.Count]);
+                        manager.CloseMenu(player);
+                    }
+                });
+                t3menu.AddOption(Instance.Localizer.ForPlayer(player, "confirm<no>"), (p, option) =>
+                {
+                    manager.CloseMenu(player);
+                });
+                manager.OpenMainMenu(player, t3menu);
+                break;
+            case "screen":
+            case "worldtext":
+                Menu menu = new Menu(player, Instance)
+                {
+                    Title = Instance.Localizer.ForPlayer(player, "resetcredits<confirm>"),
+                    HasExitButon = false,
+                };
+
+                menu.AddItem(Instance.Localizer.ForPlayer(player, "confirm<yes>"), (p, option) =>
+                {
+                    List<CCSPlayerController> players = Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV).ToList();
+                    foreach (var player in players)
+                    {
+                        STORE_API.SetClientCredits(player, 0);
+                        p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["credits.reset", players.Count]);
+                        menu.Close(p);
+                    }
+                });
+                menu.AddItem(Instance.Localizer.ForPlayer(player, "confirm<no>"), (p, option) =>
+                {
+                    menu.Close(p);
+                });
+                menu.Display();
+                break;
+        }
     }
     public static void Command_ShowCredits(CCSPlayerController? player, CommandInfo info)
     {
