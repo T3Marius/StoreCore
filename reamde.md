@@ -10,6 +10,35 @@
 
 - More modules will be created by me in the future, but if you want feel free to create a module and open a PR, i'll gladly accept it. For the repository, add your module and open the pr.
 
+- I don't plan on giving up on this project anytime soon, so there will be updates weekly on this. Maybe even sooner.
+
+# Avalible Modules
+
+- [PlayerModels] | Allows you to add how many models you want from the module config.
+
+- [Abilities] | Speed/Gravity/God Mode. You can add more of them with each one having a different Duration, etc.
+
+- [Flags] | Players can buy custom flags from the store with duration. For example you could add vip flag, premium flag, acces flag.
+
+- [SpawnEffects] | SpawnEffects on player spawn, a bomb like explosion.
+
+- [Hit-Sounds] | As the name says, you can add how much hit sounds you want with different prices/durations/etc. They are able to preview the hit sounds too.
+
+- [Killscreen] | This one is also previewable, players gains killscreen with the healtshot like effect.
+
+- [SmokeColor] | You can add how many smoke colors you want in config.
+
+- All modules will have a default config automaticly created when added, so now worry about how to use them!.
+
+# Menu Requirements
+
+- **[** [**T3Menu**](https://github.com/T3Marius/T3Menu-API) **]**
+- **[** [**CS2ScreenMenu**](https://github.com/T3Marius/CS2ScreenMenuAPI) **]**
+
+- I know it's a bit annoying to have 2 more API's installed with this one, but i can't do it other way at the moment, SORRY!
+
+**NOTE**: There's a special option in store menu only for t3menu named functions. Which allows an admin to send credits from the menu to players (@css/root). It might be added in screen menu in the future.
+
 # Config 
 ```toml
 ConfigVersion = 1
