@@ -28,7 +28,7 @@
 
 - [SmokeColor] | You can add how many smoke colors you want in config.
 
-- All modules will have a default config automaticly created when added, so now worry about how to use them!.
+- All modules will have a default config automaticly created when added, so no worry about how to use them!.
 
 # Menu Requirements
 
