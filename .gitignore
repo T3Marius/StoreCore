@@ -1,6 +1,5 @@
 .vs/
 **/obj
 **/bin
-
-BuildOutput/
 *.dll
+BuildOutput/
