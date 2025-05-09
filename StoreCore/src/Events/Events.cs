@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using static CounterStrikeSharp.API.Core.Listeners;
 using static StoreCore.StoreCore;
 
 namespace StoreCore;
@@ -12,6 +13,7 @@ public static class Events
         Instance.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
         Instance.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
         Instance.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
+        Instance.RegisterListener<OnMapEnd>(OnMapEnd);
     }
     public static HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
@@ -76,41 +78,25 @@ public static class Events
         CCSPlayerController? player = @event.Userid;
         if (player != null && player.IsValid && !player.IsBot && !player.IsHLTV)
         {
-            string playerName = player.PlayerName;
-            ulong steamId = player.SteamID;
-
-
-            Task.Run(async () =>
-            {
-                await Item.LoadPlayerItems(steamId);
-                await Database.CreatePlayerAsync(steamId, playerName);
-                await Database.GetPlayerItemsAsync(steamId, playerName);
-            });
+            StorePlayer.LoadPlayerData(player);
         }
         return HookResult.Continue;
     }
+
     public static HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
         if (player != null && player.IsValid && !player.IsBot && !player.IsHLTV)
         {
-            string playerName = player.PlayerName;
-            ulong steamId = player.SteamID;
-
-            int credits = 0;
-            if (Instance.PlayerCredits.TryGetValue(steamId, out int cachedCredits))
-            {
-                credits = cachedCredits;
-            }
-
-            Task.Run(async () =>
-            {
-                await Database.SavePlayerAsync(steamId, playerName, credits);
-            });
-
-            Instance.PlayerCredits.Remove(steamId);
+            StorePlayer.SavePlayerData(player);
         }
-
         return HookResult.Continue;
+    }
+    public static void OnMapEnd()
+    {
+        foreach (var player in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV && p.IsValid))
+        {
+            StorePlayer.SavePlayerData(player);
+        }
     }
 }
