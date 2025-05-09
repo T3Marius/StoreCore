@@ -4,10 +4,19 @@ namespace StoreCore;
 
 public class StoreConfig : BasePluginConfig
 {
+    public Database_Config Database { get; set; } = new Database_Config();
     public Main_Config MainConfig { get; set; } = new Main_Config();
     public Commands_Config Commands { get; set; } = new Commands_Config();
-    public Database_Config Database { get; set; } = new Database_Config();
+    public Permission_Config Permissions { get; set; } = new Permission_Config();
 
+}
+public class Permission_Config
+{
+    public List<string> StoreCommand { get; set; } = [""];
+    public List<string> AddCredits { get; set; } = ["@css/root"];
+    public List<string> RemoveCredits { get; set; } = ["@css/root"];
+    public List<string> SetCredits { get; set; } = ["@css/rcon"];
+    public List<string> ResetCredits { get; set; } = ["@css/root"];
 }
 public class Main_Config
 {
@@ -27,7 +36,6 @@ public class Commands_Config
     public List<string> SetCredits { get; set; } = ["setcredits"];
     public List<string> RemoveCredits { get; set; } = ["removecredits", "takecredits"];
     public List<string> GiftCredits { get; set; } = ["gift", "giftcredits"];
-    public List<string> ResetDatabase { get; set; } = ["resetdb", "resetdatabase"];
     public List<string> ResetCredits { get; set; } = ["resetcredits", "rc"];
 }
 public class Database_Config
