@@ -42,6 +42,14 @@
 # Config 
 ```toml
 ConfigVersion = 1
+
+[Database] # database connection
+Host = ""
+Name = ""
+User = ""
+Pass = ""
+Port = 3306
+
 [MainConfig]
 MenuType = "t3"           # there are only 2 menus, screen or t3.
 StartCredits = 0          # How much credits a new player will have at start. 
@@ -58,15 +66,14 @@ AddCredits = ["addcredits", "givecredits"]       # commands to give credits, as 
 SetCredits = ["setcredits"]                      # command to set credits, as an admin.
 RemoveCredits = ["removecredits"]                # command to remove an amount of credits from a player.
 GiftCredits = ["giftcredits", "gift"]            # commands to gift someone credits (for normal players)
-ResetDatabase = ["dbreset", "resetdb"]           # commands to reset the database (not configured yet)
 ResetCredits = ["rc", "resetcredits"]            # commands to reset all players credits
 
-[Database] # database connection
-Host = ""
-Name = ""
-User = ""
-Pass = ""
-Port = 3306
+[Permissions]		# set permission foreach command.
+StoreCommand = [""]
+AddCredits = ["@css/root"]
+RemoveCredits = ["@css/root"]
+SetCredits = ["@css/root"]
+ResetCredits = ["@css/root"]
 ```
 
 # Module Example
