@@ -50,6 +50,29 @@ public static class T3Menu
                 DisplayGiveCreditsMenu(p, menu);
             });
         }
+        menu.AddOption(Instance.Localizer.ForPlayer(player, "giftcredits<option>"), (p, o) =>
+        {
+            DisplayGiftCreditsMenu(p, menu);
+        });
+        manager.OpenSubMenu(player, menu);
+    }
+    private static void DisplayGiftCreditsMenu(CCSPlayerController player, IT3Menu prevMenu)
+    {
+        if (player == null)
+            return;
+
+        var manager = Instance.GetMenuManager() ?? throw new Exception("T3Menu not found");
+
+        IT3Menu menu = manager.CreateMenu(Instance.Localizer.ForPlayer(player, "giftcredits<title>"), isSubMenu: true);
+        menu.ParentMenu = prevMenu;
+
+        foreach (var client in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV && p != player))
+        {
+            menu.AddOption(client.PlayerName, (p, o) =>
+            {
+                DisplayGiftCreditsToPlayerMenu(p, prevMenu, client.PlayerName, client);
+            });
+        }
         manager.OpenSubMenu(player, menu);
     }
     private static void DisplayGiveCreditsMenu(CCSPlayerController player, IT3Menu prevMenu)
@@ -62,16 +85,45 @@ public static class T3Menu
         IT3Menu menu = manager.CreateMenu(Instance.Localizer.ForPlayer(player, "givecredits<title>"), isSubMenu: true);
         menu.ParentMenu = prevMenu;
 
-        foreach (var client in Utilities.GetPlayers())
+        foreach (var client in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV && p != player))
         {
             menu.AddOption(client.PlayerName, (p, o) =>
             {
-                DisplayPlayersManageMenu(player, prevMenu, client.PlayerName, client);
+                DisplayGiveCreditsToPlayerMenu(player, prevMenu, client.PlayerName, client);
             });
         }
         manager.OpenSubMenu(player, menu);
     }
-    private static void DisplayPlayersManageMenu(CCSPlayerController player, IT3Menu prevMenu, string playerName, CCSPlayerController client)
+    private static void DisplayGiftCreditsToPlayerMenu(CCSPlayerController player, IT3Menu prevMenu, string playerName, CCSPlayerController client)
+    {
+        if (player == null)
+            return;
+
+        var manager = Instance.GetMenuManager() ?? throw new Exception("T3Menu not found");
+        IT3Menu menu = manager.CreateMenu(playerName, isSubMenu: true);
+        menu.ParentMenu = prevMenu;
+
+        menu.AddInputOption(Instance.Localizer.ForPlayer(player, "input.GiftCredits"), Instance.Localizer.ForPlayer(player, "input.GiftCredits.PlaceHolder"), (p, o, input) =>
+        {
+            int credits = int.Parse(input);
+            int playerCredits = STORE_API.GetClientCredits(p);
+
+            if (playerCredits < credits)
+            {
+                p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["not.enough.credits"]);
+                return;
+            }
+            else
+            {
+                STORE_API.AddClientCredits(client, credits);
+                STORE_API.RemoveClientCredits(player, credits);
+                p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["credits.gifted", client.PlayerName, credits]);
+                client.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["credits.recieved", p.PlayerName, credits]);
+            }
+        }, Instance.Localizer["prefix"] + Instance.Localizer["input.GiftCredits.message", playerName] + Instance.Localizer["prefix"] + Instance.Localizer["input.Cancel.message"]);
+        manager.OpenSubMenu(player, menu);
+    }
+    private static void DisplayGiveCreditsToPlayerMenu(CCSPlayerController player, IT3Menu prevMenu, string playerName, CCSPlayerController client)
     {
         if (player == null)
             return;
