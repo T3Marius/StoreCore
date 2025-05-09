@@ -51,6 +51,12 @@ public static class Commands
         if (player == null)
             return;
 
+        if (Instance.Config.Permissions.StoreCommand.Any(flag => !AdminManager.PlayerHasPermissions(player, flag)))
+        {
+            info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
+            return;
+        }
+
         Instance.Config.Reload();
 
         switch (Instance.Config.MainConfig.MenuType)
@@ -64,11 +70,17 @@ public static class Commands
         }
 
     }
-    [RequiresPermissions("@css/rcon")]
+    [RequiresPermissions("@css/root")]
     public static void Command_ResetCredits(CCSPlayerController? player, CommandInfo info)
     {
         if (player == null)
             return;
+
+        if (Instance.Config.Permissions.ResetCredits.Any(flag => !AdminManager.PlayerHasPermissions(player, flag)))
+        {
+            info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
+            return;
+        }
 
         switch (Instance.Config.MainConfig.MenuType)
         {
@@ -172,11 +184,16 @@ public static class Commands
         targetPlayer.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["credits.received", credits]);
     }
     [CommandHelper(minArgs: 2, usage: "<playername> | @all <credits>")]
-    [RequiresPermissions("@css/cheats")]
     public static void Command_AddCredits(CCSPlayerController? player, CommandInfo info)
     {
         if (player == null || player.IsBot || player.IsHLTV)
             return;
+
+        if (Instance.Config.Permissions.AddCredits.Any(flag => !AdminManager.PlayerHasPermissions(player, flag)))
+        {
+            info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
+            return;
+        }
 
         string targetString = info.GetArg(1);
         if (!int.TryParse(info.GetArg(2), out int credits))
@@ -209,12 +226,17 @@ public static class Commands
         }
     }
     [CommandHelper(minArgs: 2, usage: "<playername> | @all <credits>")]
-    [RequiresPermissions("@css/cheats")]
     public static void Command_RemoveCredits(CCSPlayerController? player, CommandInfo info)
     {
-        if (player == null || player.IsBot || player.IsHLTV)
+        if (player == null)
             return;
-        
+
+        if (Instance.Config.Permissions.RemoveCredits.Any(flag => !AdminManager.PlayerHasPermissions(player, flag)))
+        {
+            info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
+            return;
+        }
+
         string targetString = info.GetArg(1);
         if (!int.TryParse(info.GetArg(2), out int credits))
         {
@@ -245,11 +267,16 @@ public static class Commands
         }
     }
     [CommandHelper(minArgs: 2, usage: "<playername> | @all <credits>")]
-    [RequiresPermissions("@css/cheats")]
     public static void Command_SetCredits(CCSPlayerController? player, CommandInfo info)
     {
         if (player == null || player.IsBot || player.IsHLTV)
             return;
+
+        if (Instance.Config.Permissions.SetCredits.Any(flag => !AdminManager.PlayerHasPermissions(player, flag)))
+        {
+            info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
+            return;
+        }
 
         string targetString = info.GetArg(1);
         if (!int.TryParse(info.GetArg(2), out int credits))
