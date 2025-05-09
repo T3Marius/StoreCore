@@ -4,3 +4,4 @@
 *.dll
 BuildOutput/
 *.zip
+*.sln
