@@ -8,6 +8,7 @@
     "inventory.items<title>": "Your items",
     "confirm.purchase<title>": "Buy [{0}] ?",
     "givecredits<title>": "Select A Player",
+    "giftcredits<title>": "Select A Player",
     "functionsmenu<title>": "Store Functions",
     "confirm.sell<title>": "Sell [{0}] ?",
     "items<title>": "Items - {0}",
@@ -63,7 +64,7 @@
 
     "not.enough.credits": "{red}You don't have enough credits{silver}!",
     "cant.gift.yourself": "You can't gift to yourself! Idiot!'",
-    "credits.received": "Player {purple}{0}{silver} gave you {purple}{1} credits{silver}!",
+    "credits.recieved": "Player {purple}{0}{silver} gave you {purple}{1} credits{silver}!",
     "credits.gifted": "You gifted {blue}{0}{silver} {purple}{1} credits{silver}!",
 
     "resetcredits<confirm>": "Reset everyone's credits?",
@@ -72,11 +73,15 @@
     "credits.reset": "Succesfully reseted credits for {0} players!",
 
     "input.GiveCredits": "Add Credits",
+    "input.GiftCredits": "Gift Credits",
+    "input.GiftCredits.message": "Write the amount of credits you wanna gift to {purple}{0}{silver} in chat.",
     "input.GiveCredits.message": "Write the amount of credits you wanna give to {purple}{0}{silver} in chat.",
     "input.Cancel.message": "Write {purple}cancel{silver} to leave the transfer.",
     "input.Abandon": "You canceled the transfer.",
     "givecredits<option>": "Give Credits",
-    "input.GiveCredits.PlaceHolder": "Amount",
+    "giftcredits<option>": "Gift Credits",
+    "input.GiveCredits.PlaceHolder": "Enter Amount",
+    "input.GiftCredits.PlaceHolder": "Enter Amount",
     "functions<option>": "Functions",
 
     "duration.permanent": "Permanent",
