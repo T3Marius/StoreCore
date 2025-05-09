@@ -13,35 +13,33 @@ public static class Item
     private static readonly Dictionary<ulong, List<Store.Store_Equipment>> _playerEquipment = new();
     private static readonly Dictionary<string, Store.Store_Item> _availableItems = new();
     private static readonly Dictionary<string, List<string>> _categories = new();
+    private static bool _itemsLoaded = false;
+    private static readonly SemaphoreSlim _loadLock = new SemaphoreSlim(1, 1);
 
     public static void Initialize()
     {
-        Instance.AddTimer(5.0f, () =>
+        Instance.AddTimer(2.0f, async () =>
         {
+            if (!Database.IsInitialized)
+                return;
+  
+
+            await LoadItemsFromDatabase();
+
             int itemCount = GetTotalItemCount();
             var categories = GetCategories();
             int categoryCount = categories.Count;
 
-            Instance.Logger?.LogInformation("Succesfully loaded with {itemCount} Items and {categoryCount} Categories!", itemCount, categoryCount);
+            Instance.Logger.LogInformation("Successfully loaded with {itemCount} Items and {categoryCount} Categories!", itemCount, categoryCount);
         });
+
         Instance.AddTimer(10, () =>
         {
-            foreach (var player in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV))
+            foreach (var player in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV && p.IsValid))
             {
                 CheckExpiredItems(player);
             }
         }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT);
-
-        Task.Run(async () =>
-        {
-            try
-            {
-                await LoadItemsFromDatabase();
-            }
-            catch (Exception)
-            {
-            }
-        });
     }
     private static int GetTotalItemCount()
     {
@@ -56,36 +54,80 @@ public static class Item
         return count;
     }
 
-    private static async Task LoadItemsFromDatabase()
+    public static async Task LoadItemsFromDatabase()
     {
-        var items = await Database.GetAllItemsAsync();
-        _availableItems.Clear();
-        _categories.Clear();
+        await _loadLock.WaitAsync();
 
-        foreach (var item in items)
+        try
         {
-            _availableItems[item.UniqueId] = item;
+            if (!Database.IsInitialized)
+            {
+                return;
+            }
 
-            if (!_categories.ContainsKey(item.Category))
-                _categories[item.Category] = new List<string>();
+            Instance.Logger.LogInformation("Loading items from database...");
+            var items = await Database.GetAllItemsAsync();
 
-            if (!_categories[item.Category].Contains(item.UniqueId))
-                _categories[item.Category].Add(item.UniqueId);
+            _availableItems.Clear();
+            _categories.Clear();
+
+            foreach (var item in items)
+            {
+                _availableItems[item.UniqueId] = item;
+
+                if (!_categories.ContainsKey(item.Category))
+                    _categories[item.Category] = new List<string>();
+
+                if (!_categories[item.Category].Contains(item.UniqueId))
+                    _categories[item.Category].Add(item.UniqueId);
+            }
+
+            _itemsLoaded = true;
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError($"Failed to load items from database: {ex.Message}");
+        }
+        finally
+        {
+            _loadLock.Release();
         }
     }
 
 
     public static async Task LoadPlayerItems(ulong steamId)
     {
-        var items = await Database.GetPlayerItemsAsync(steamId);
-        _playerItems[steamId] = items;
+        if (!Database.IsInitialized)
+        {
+            return;
+        }
 
-        var equipment = await Database.GetPlayerEquipmentAsync(steamId);
-        _playerEquipment[steamId] = equipment;
+        if (!_itemsLoaded)
+        {
+            await LoadItemsFromDatabase();
+        }
+
+        try
+        {
+            Instance.Logger.LogDebug($"Loading items for player {steamId}");
+            var items = await Database.GetPlayerItemsAsync(steamId);
+            _playerItems[steamId] = items;
+
+            var equipment = await Database.GetPlayerEquipmentAsync(steamId);
+            _playerEquipment[steamId] = equipment;
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError($"Failed to load player items: {ex.Message}");
+        }
     }
 
     public static bool RegisterItem(string uniqueId, string name, string category, string type, int price, string description = "", bool isSellable = true, bool isBuyable = true, bool isEquipable = true, int duration = 0)
     {
+        if (!Database.IsInitialized)
+        {
+            return false;
+        }
         var item = new Store.Store_Item
         {
             UniqueId = uniqueId,
