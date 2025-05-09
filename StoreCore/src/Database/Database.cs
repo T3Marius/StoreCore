@@ -10,48 +10,99 @@ namespace StoreCore;
 public static class Database
 {
     public static string GlobalDatabaseConnectionString { get; set; } = string.Empty;
+    public static bool IsInitialized { get; private set; } = false;
+    private static readonly SemaphoreSlim _initializationLock = new SemaphoreSlim(1, 1);
 
     public static async Task<MySqlConnection> ConnectAsync()
     {
-        MySqlConnection connection = new(GlobalDatabaseConnectionString);
-        await connection.OpenAsync();
-        return connection;
+        if (string.IsNullOrEmpty(GlobalDatabaseConnectionString))
+        {
+            throw new InvalidOperationException("Database connection string not initialized. Call Initialize() first.");
+        }
+
+        try
+        {
+            MySqlConnection connection = new(GlobalDatabaseConnectionString);
+            await connection.OpenAsync();
+            return connection;
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError($"Failed to connect to database: {ex.Message}");
+            throw;
+        }
     }
 
     public static void ExecuteAsync(string query, object? parameters)
     {
+        if (!IsInitialized)
+        {
+            Instance.Logger.LogWarning("Attempted to execute query before database initialization");
+            return;
+        }
+
         Task.Run(async () =>
         {
-            using MySqlConnection connection = await ConnectAsync();
-            await connection.ExecuteAsync(query, parameters);
+            try
+            {
+                using MySqlConnection connection = await ConnectAsync();
+                await connection.ExecuteAsync(query, parameters);
+            }
+            catch (Exception ex)
+            {
+                Instance.Logger.LogError($"Failed to execute query: {ex.Message}");
+            }
         });
     }
-
-    public static async Task CreateDatabaseAsync(Database_Config config)
+    public static async Task InitializeAsync(Database_Config config)
     {
-        MySqlConnectionStringBuilder builder = new()
+        await _initializationLock.WaitAsync();
+        try
         {
-            Server = config.Host,
-            Database = config.Name,
-            UserID = config.User,
-            Password = config.Pass,
-            Port = config.Port,
-            Pooling = true,
-            MinimumPoolSize = 0,
-            MaximumPoolSize = 640,
-            ConnectionIdleTimeout = 30,
-            AllowZeroDateTime = true
-        };
+            if (IsInitialized)
+            {
+                Instance.Logger.LogDebug("Database already initialized, skipping");
+                return;
+            }
 
-        GlobalDatabaseConnectionString = builder.ConnectionString;
+            MySqlConnectionStringBuilder builder = new()
+            {
+                Server = config.Host,
+                Database = config.Name,
+                UserID = config.User,
+                Password = config.Pass,
+                Port = config.Port,
+                Pooling = true,
+                MinimumPoolSize = 0,
+                MaximumPoolSize = 640,
+                ConnectionIdleTimeout = 30,
+                AllowZeroDateTime = true,
+                ConnectionTimeout = 15,
+                DefaultCommandTimeout = 30
+            };
 
+            GlobalDatabaseConnectionString = builder.ConnectionString;
+
+            await CreateTablesAsync();
+            IsInitialized = true;
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError($"Failed to initialize database: {ex.Message}");
+            throw;
+        }
+        finally
+        {
+            _initializationLock.Release();
+        }
+    }
+    private static async Task CreateTablesAsync()
+    {
         using MySqlConnection connection = await ConnectAsync();
         using MySqlTransaction transaction = await connection.BeginTransactionAsync();
 
         try
         {
-            Instance.Logger.LogInformation("Attempting to create database...");
-
             await connection.ExecuteAsync(@"
                 CREATE TABLE IF NOT EXISTS store_players (
                     id INT NOT NULL AUTO_INCREMENT,
@@ -102,64 +153,118 @@ public static class Database
                 );", transaction: transaction);
 
             await transaction.CommitAsync();
-            Instance.Logger.LogInformation("Database created successfully!");
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            Instance.Logger.LogError("Error creating the database!" + ex.Message);
+            Instance.Logger.LogError($"Error creating database tables: {ex.Message}");
             throw;
         }
     }
     public static async Task<Store_Player?> LoadPlayerAsync(ulong steamId)
     {
-        using MySqlConnection connection = await ConnectAsync();
-        return await connection.QueryFirstOrDefaultAsync<Store_Player>(
-            "SELECT * FROM store_players WHERE SteamID = @SteamID",
-            new { SteamID = steamId });
+        if (!IsInitialized)
+        {
+            Instance.Logger.LogWarning("Attempted to load player before database initialization");
+            return null;
+        }
+
+        try
+        {
+            using MySqlConnection connection = await ConnectAsync();
+            return await connection.QueryFirstOrDefaultAsync<Store_Player>(
+                "SELECT * FROM store_players WHERE SteamID = @SteamID",
+                new { SteamID = steamId });
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError($"Failed to load player (SteamID: {steamId}): {ex.Message}");
+            return null;
+        }
     }
 
     public static async Task<bool> AddCreditsAsync(ulong steamId, int amount)
     {
-        if (amount <= 0)
+        if (!IsInitialized || amount <= 0) return false;
+
+        try
+        {
+            using MySqlConnection connection = await ConnectAsync();
+            int rowsAffected = await connection.ExecuteAsync(
+                "UPDATE store_players SET Credits = Credits + @Amount WHERE SteamID = @SteamID",
+                new { SteamID = steamId, Amount = amount });
+
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError($"Failed to add credits: {ex.Message}");
             return false;
-
-        using MySqlConnection connection = await ConnectAsync();
-        int rowsAffected = await connection.ExecuteAsync(
-            "UPDATE store_players SET Credits = Credits + @Amount WHERE SteamID = @SteamID",
-            new { SteamID = steamId, Amount = amount });
-
-        return rowsAffected > 0;
+        }
     }
 
     public static async Task<bool> RemoveCreditsAsync(ulong steamId, int amount)
     {
-        if (amount <= 0)
+        if (!IsInitialized || amount <= 0) return false;
+
+        try
+        {
+            using MySqlConnection connection = await ConnectAsync();
+            int rowsAffected = await connection.ExecuteAsync(
+                "UPDATE store_players SET Credits = GREATEST(0, Credits - @Amount) WHERE SteamID = @SteamID",
+                new { SteamID = steamId, Amount = amount });
+
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError($"Failed to remove credits: {ex.Message}");
             return false;
-
-        using MySqlConnection connection = await ConnectAsync();
-        int rowsAffected = await connection.ExecuteAsync(
-            "UPDATE store_players SET Credits = GREATEST(0, Credits - @Amount) WHERE SteamID = @SteamID",
-            new { SteamID = steamId, Amount = amount });
-
-        return rowsAffected > 0;
+        }
     }
 
     public static async Task<bool> SetCreditsAsync(ulong steamId, int amount)
     {
-        if (amount < 0)
+        if (!IsInitialized || amount < 0) return false;
+
+        try
+        {
+            using MySqlConnection connection = await ConnectAsync();
+            int rowsAffected = await connection.ExecuteAsync(
+                "UPDATE store_players SET Credits = @Amount WHERE SteamID = @SteamID",
+                new { SteamID = steamId, Amount = amount });
+
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError($"Failed to set credits: {ex.Message}");
             return false;
-
-        using MySqlConnection connection = await ConnectAsync();
-        int rowsAffected = await connection.ExecuteAsync(
-            "UPDATE store_players SET Credits = @Amount WHERE SteamID = @SteamID",
-            new { SteamID = steamId, Amount = amount });
-
-        return rowsAffected > 0;
+        }
     }
+    public static async Task<bool> UpdatePlayerLastJoinAsync(ulong steamId, string playerName)
+    {
+        if (!IsInitialized) return false;
 
+        try
+        {
+            using MySqlConnection connection = await ConnectAsync();
+            int rowsAffected = await connection.ExecuteAsync(
+                "UPDATE store_players SET PlayerName = @PlayerName, DateOfLastJoin = @Now WHERE SteamID = @SteamID",
+                new { SteamID = steamId, PlayerName = playerName, Now = DateTime.UtcNow });
+
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError($"Failed to update player's last join: {ex.Message}");
+            return false;
+        }
+    }
     public static async Task<bool> CreatePlayerAsync(ulong steamId, string playerName)
     {
+        if (!IsInitialized) return false;
+
         try
         {
             using MySqlConnection connection = await ConnectAsync();
@@ -178,6 +283,7 @@ public static class Database
                         PlayerName = playerName,
                         Now = DateTime.UtcNow
                     });
+                Instance.Logger.LogDebug($"Updated existing player record for {playerName} (SteamID: {steamId})");
                 return true;
             }
 
@@ -628,7 +734,14 @@ public static class Database
 
         Task.Run(async () =>
         {
-            await CreateDatabaseAsync(config);
+            try
+            {
+                await InitializeAsync(config);
+            }
+            catch (Exception ex)
+            {
+                Instance.Logger.LogError($"Failed to initialize database: {ex.Message}");
+            }
         });
     }
 }
