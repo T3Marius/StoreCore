@@ -52,7 +52,7 @@ public static class Commands
             return;
 
         if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
-             !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
+             !Instance.Config.Permissions.StoreCommand.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
             info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
             return;
