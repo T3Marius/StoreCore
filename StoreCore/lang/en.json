@@ -72,6 +72,8 @@
     "confirm<no>": "No",
     "credits.reset": "Succesfully reseted credits for {0} players!",
 
+    "no.permission": "You don't have permission to use this command!",
+
     "input.GiveCredits": "Add Credits",
     "input.GiftCredits": "Gift Credits",
     "input.GiftCredits.message": "Write the amount of credits you wanna gift to {purple}{0}{silver} in chat.",

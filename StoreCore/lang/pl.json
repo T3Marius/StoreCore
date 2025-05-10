@@ -72,6 +72,8 @@
     "confirm<no>": "Nie",
     "credits.reset": "Pomyślnie zresetowano kredyty dla {0} graczy!",
 
+    "no.permission": "Nie masz uprawnień do użycia tego polecenia!",
+
     "input.GiveCredits": "Dodaj kredyty",
     "input.GiftCredits": "Podaruj kredyty",
     "input.GiftCredits.message": "Napisz ilość kredytów, którą chcesz podarować graczowi {purple}{0}{silver} na czacie.",
