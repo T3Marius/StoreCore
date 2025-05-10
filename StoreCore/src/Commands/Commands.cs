@@ -51,7 +51,8 @@ public static class Commands
         if (player == null)
             return;
 
-        if (Instance.Config.Permissions.StoreCommand.Any(flag => !AdminManager.PlayerHasPermissions(player, flag)))
+        if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
+             !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
             info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
             return;
