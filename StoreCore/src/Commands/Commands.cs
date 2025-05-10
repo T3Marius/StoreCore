@@ -76,7 +76,8 @@ public static class Commands
         if (player == null)
             return;
 
-        if (Instance.Config.Permissions.ResetCredits.Any(flag => !AdminManager.PlayerHasPermissions(player, flag)))
+        if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
+            !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
             info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
             return;
@@ -189,7 +190,8 @@ public static class Commands
         if (player == null || player.IsBot || player.IsHLTV)
             return;
 
-        if (Instance.Config.Permissions.AddCredits.Any(flag => !AdminManager.PlayerHasPermissions(player, flag)))
+        if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
+            !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
             info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
             return;
@@ -231,7 +233,8 @@ public static class Commands
         if (player == null)
             return;
 
-        if (Instance.Config.Permissions.RemoveCredits.Any(flag => !AdminManager.PlayerHasPermissions(player, flag)))
+        if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
+            !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
             info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
             return;
@@ -272,7 +275,8 @@ public static class Commands
         if (player == null || player.IsBot || player.IsHLTV)
             return;
 
-        if (Instance.Config.Permissions.SetCredits.Any(flag => !AdminManager.PlayerHasPermissions(player, flag)))
+        if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
+            !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
             info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
             return;
