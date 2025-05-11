@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace StoreCore_Roulette
 {
-    public class RouletteConfig : BasePluginConfig
+    public class RouletteConfig 
     {
         [JsonPropertyName("Prefix")]
         public string Prefix { get; set; } = "{blue}⌈ Roulette ⌋";

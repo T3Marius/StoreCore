@@ -7,6 +7,7 @@ using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Utils;
+using McMaster.NETCore.Plugins;
 using StoreAPI;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ using T3MenuSharedApi;
 
 namespace StoreCore_Roulette
 {
-    public partial class Roulette : BasePlugin, IPluginConfig<RouletteConfig>
+    public partial class Roulette : BasePlugin
     {
         public override string ModuleName => "StoreCore Roulette";
         public override string ModuleVersion => "0.0.3";
@@ -34,7 +35,9 @@ namespace StoreCore_Roulette
 
         public override void OnAllPluginsLoaded(bool hotReload)
         {
+            Config = StoreApi.GetModuleConfig<RouletteConfig>("Roulette");
             StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
+            prefix = Config.Prefix.ReplaceColorTags();
             foreach (var item in Config.CommandsForRoulette)
             {
                 AddCommand(item, "", RouletteCommand);
@@ -48,12 +51,6 @@ namespace StoreCore_Roulette
                 MenuManager = new PluginCapability<IT3MenuManager>("t3menu:manager").Get();
             }
             return MenuManager;
-        }
-
-        public void OnConfigParsed(RouletteConfig config)
-        {
-            Config = config;
-            prefix = config.Prefix.ReplaceColorTags();
         }
 
         public void RouletteCommand(CCSPlayerController? caller, CommandInfo command)
