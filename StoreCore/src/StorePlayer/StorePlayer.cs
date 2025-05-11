@@ -19,19 +19,16 @@ public static class StorePlayer
             {
                 try
                 {
-                    Instance.Logger.LogDebug($"Loading player data for {playerName} (SteamID: {steamId})");
                     var playerData = await Database.LoadPlayerAsync(steamId);
 
                     if (playerData != null)
                     {
                         Instance.PlayerCredits[steamId] = playerData.Credits;
-                        Instance.Logger.LogDebug($"Loaded {playerData.Credits} credits for {playerName}");
                     }
                     else
                     {
                         await Database.CreatePlayerAsync(steamId, playerName);
                         Instance.PlayerCredits[steamId] = Instance.Config.MainConfig.StartCredits;
-                        Instance.Logger.LogDebug($"Created new player with {Instance.Config.MainConfig.StartCredits} credits for {playerName}");
                     }
 
                     await Item.LoadPlayerItems(steamId);
@@ -46,14 +43,17 @@ public static class StorePlayer
 
     public static void StartCreditsAward()
     {
-        Instance.AddTimer(Instance.Config.MainConfig.PlaytimeInterval, () =>
+        if (Instance.Config.MainConfig.CreditsPerInterval > 0)
         {
-            foreach (var player in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV && p.IsValid))
+            Instance.AddTimer(Instance.Config.MainConfig.PlaytimeInterval, () =>
             {
-                player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activity.reward", Instance.Config.MainConfig.CreditsPerInterval]);
-                STORE_API.AddClientCredits(player, Instance.Config.MainConfig.CreditsPerInterval);
-            }
-        }, TimerFlags.REPEAT);
+                foreach (var player in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV && p.IsValid))
+                {
+                    player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activity.reward", Instance.Config.MainConfig.CreditsPerInterval]);
+                    STORE_API.AddClientCredits(player, Instance.Config.MainConfig.CreditsPerInterval);
+                }
+            }, TimerFlags.REPEAT);
+        }
     }
 
     public static async Task LoadPlayerDataAsync(string playerName, ulong steamId)
@@ -95,7 +95,7 @@ public static class StorePlayer
             {
                 try
                 {
-                    await Database.SetCreditsAsync(steamId, credits);;
+                    await Database.SetCreditsAsync(steamId, credits); ;
                 }
                 catch (Exception ex)
                 {
