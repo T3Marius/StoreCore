@@ -286,7 +286,7 @@ public class PluginConfig
                 Id = "red_trail",
                 Name = "Red Trail",
                 Path = "materials/sprites/laserbeam.vtex",
-                Color = "255 0 0",
+                Color = "Red",
                 Price = 2500,
                 Duration = 5233,
                 Type = "trail",
