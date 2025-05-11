@@ -134,12 +134,10 @@ public class Trails : BasePlugin
         if (file.EndsWith(".vpcf"))
         {
             CreateParticleTrail(player, absOrigin, file, lifetime);
-            Logger.LogInformation("CREATING PARTICLE");
         }
         else
         {
             CreateBeamTrail(player, absOrigin, file, color, width, lifetime);
-            Logger.LogInformation("CREATING BEAM");
         }
     }
     public void CreateParticleTrail(CCSPlayerController player, Vector absOrigin, string particleFile, float lifetime = 1.0f)
