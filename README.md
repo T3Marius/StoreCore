@@ -28,6 +28,10 @@
 
 - [SmokeColor] | You can add how many smoke colors you want in config.
 
+- [Tracers] | You can add how many tracers colors you want in config + random tracer or team tracer.
+
+- [VIPShop] | You need VIPCore for this. You can allow players to buy vip groups with durations.
+
 - All modules will have a default config automaticly created when added, so no worry about how to use them!.
 
 # Menu Requirements
