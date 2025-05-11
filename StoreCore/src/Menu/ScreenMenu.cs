@@ -130,9 +130,6 @@ public static class ScreenMenu
             PrevMenu = prevMenu,
         };
 
-        confirmMenu.AddItem("", (p, o) => { }, true);
-        confirmMenu.AddItem(Instance.Localizer.ForPlayer(player, "item.price", item.Price), (p, o) => { }, true);
-
         if (item.Duration > 0 && item.IsEquipable)
         {
             string durationText = FormatDuration(item.Duration);
@@ -147,10 +144,6 @@ public static class ScreenMenu
         {
             confirmMenu.AddItem(Instance.Localizer.ForPlayer(player, "item.description", item.Description), (p, o) => { }, true);
         }
-        confirmMenu.AddItem(Instance.Localizer.ForPlayer(player, "item.preview"), (p, o) =>
-        {
-            STORE_API.InvokeOnItemPreview(player, uniqueId);
-        });
         confirmMenu.AddItem("", (p, o) => { }, true);
         confirmMenu.AddItem(Instance.Localizer.ForPlayer(player, "confirm.yes", item.Price), (p, o) =>
         {
@@ -171,6 +164,10 @@ public static class ScreenMenu
         {
             confirmMenu.Close(p);
             DisplayCategoryItems(player, category, prevMenu);
+        });
+        confirmMenu.AddItem(Instance.Localizer.ForPlayer(player, "item.preview"), (p, o) =>
+        {
+            STORE_API.InvokeOnItemPreview(player, uniqueId);
         });
 
         confirmMenu.Display();
