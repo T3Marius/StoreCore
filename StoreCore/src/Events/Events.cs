@@ -78,7 +78,13 @@ public static class Events
         CCSPlayerController? player = @event.Userid;
         if (player != null && player.IsValid && !player.IsBot && !player.IsHLTV)
         {
-            StorePlayer.LoadPlayerData(player);
+            string playerName = player.PlayerName;
+            ulong steamId = player.SteamID;
+
+            Task.Run(async () =>
+            {
+                await StorePlayer.LoadPlayerDataAsync(playerName, steamId);
+            });
         }
         return HookResult.Continue;
     }
