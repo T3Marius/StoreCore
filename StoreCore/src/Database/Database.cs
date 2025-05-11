@@ -61,7 +61,6 @@ public static class Database
         {
             if (IsInitialized)
             {
-                Instance.Logger.LogDebug("Database already initialized, skipping");
                 return;
             }
 
@@ -165,7 +164,6 @@ public static class Database
     {
         if (!IsInitialized)
         {
-            Instance.Logger.LogWarning("Attempted to load player before database initialization");
             return null;
         }
 
@@ -283,7 +281,6 @@ public static class Database
                         PlayerName = playerName,
                         Now = DateTime.UtcNow
                     });
-                Instance.Logger.LogDebug($"Updated existing player record for {playerName} (SteamID: {steamId})");
                 return true;
             }
 
@@ -298,8 +295,6 @@ public static class Database
                     Now = DateTime.UtcNow,
                     Vip = false
                 });
-
-            Instance.Logger.LogInformation($"Created new player record for {playerName} (SteamID: {steamId})");
             return true;
         }
         catch (Exception ex)
@@ -336,8 +331,6 @@ public static class Database
                         Now = DateTime.UtcNow,
                         Vip = vip
                     });
-
-                Instance.Logger.LogInformation($"Saved player data for {playerName} (SteamID: {steamId}, Credits: {credits})");
                 return true;
             }
             else
@@ -354,7 +347,6 @@ public static class Database
                         Vip = vip
                     });
 
-                Instance.Logger.LogInformation($"Created new player record for {playerName} (SteamID: {steamId}, Credits: {credits})");
                 return true;
             }
         }
