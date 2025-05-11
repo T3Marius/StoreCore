@@ -13,12 +13,16 @@ public class Trails : BasePlugin
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] Trails";
     public override string ModuleVersion => "1.0.0";
+
     public IStoreAPI? StoreApi;
     public PluginConfig Config { get; set; } = new PluginConfig();
+
     public readonly Vector[] TrailLastOrigin = new Vector[64];
     public readonly Vector[] TrailEndOrigin = new Vector[64];
+
     public static readonly Color[] rainbowColors = GenerateRainbowColors();
     public static int colorIndex = 0;
+
     public static int tickCounter = 0;
     private static int ticksForUpdate = 0;
     public override void OnAllPluginsLoaded(bool hotReload)
