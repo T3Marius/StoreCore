@@ -34,6 +34,8 @@
   
 - [VIPShop] | You need VIPCore for this. You can allow players to buy vip groups with durations.
 
+- [VIPBhop] | Allows players to buy BHOP from shop, speed aplicable
+
 - All modules will have a default config automaticly created when added, so no worry about how to use them!.
 
 # Menu Requirements
