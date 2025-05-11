@@ -8,8 +8,6 @@ namespace StoreCore;
 
 public static class StorePlayer
 {
-    private static bool _isCreditsAwardRunning = false;
-
     public static void Load()
     {
         foreach (var player in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV))
@@ -48,56 +46,39 @@ public static class StorePlayer
 
     public static void StartCreditsAward()
     {
-        if (_isCreditsAwardRunning)
-            return;
-
-        _isCreditsAwardRunning = true;
-
         Instance.AddTimer(Instance.Config.MainConfig.PlaytimeInterval, () =>
         {
             foreach (var player in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV && p.IsValid))
             {
+                player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activity.reward", Instance.Config.MainConfig.CreditsPerInterval]);
                 STORE_API.AddClientCredits(player, Instance.Config.MainConfig.CreditsPerInterval);
             }
         }, TimerFlags.REPEAT);
     }
 
-    public static void LoadPlayerData(CCSPlayerController player)
+    public static async Task LoadPlayerDataAsync(string playerName, ulong steamId)
     {
-        if (player == null || !player.IsValid || player.IsBot || player.IsHLTV)
-            return;
 
-        string playerName = player.PlayerName;
-        ulong steamId = player.SteamID;
-
-        Task.Run(async () =>
+        try
         {
-            try
+            var playerData = await Database.LoadPlayerAsync(steamId);
+
+            if (playerData != null)
             {
-                Instance.Logger.LogDebug($"Loading player data for {playerName} (SteamID: {steamId})");
-
-                var playerData = await Database.LoadPlayerAsync(steamId);
-
-                if (playerData != null)
-                {
-                    Instance.PlayerCredits[steamId] = playerData.Credits;
-
-                    await Database.UpdatePlayerLastJoinAsync(steamId, playerName);
-                }
-                else
-                {
-                    await Database.CreatePlayerAsync(steamId, playerName);
-                    Instance.PlayerCredits[steamId] = Instance.Config.MainConfig.StartCredits;
-                    Instance.Logger.LogDebug($"Created new player with {Instance.Config.MainConfig.StartCredits} credits for {playerName}");
-                }
-
-                await Item.LoadPlayerItems(steamId);
+                Instance.PlayerCredits[steamId] = playerData.Credits;
+                await Database.UpdatePlayerLastJoinAsync(steamId, playerName);
             }
-            catch (Exception ex)
+            else
             {
-                Instance.Logger.LogError($"Error loading player data: {ex.Message}");
+                await Database.CreatePlayerAsync(steamId, playerName);
+                Instance.PlayerCredits[steamId] = Instance.Config.MainConfig.StartCredits;
             }
-        });
+            await Item.LoadPlayerItems(steamId);
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError($"Error loading player data: {ex.Message}");
+        }
     }
 
     public static void SavePlayerData(CCSPlayerController player)
@@ -110,13 +91,11 @@ public static class StorePlayer
 
         if (Instance.PlayerCredits.TryGetValue(steamId, out int credits))
         {
-
             Task.Run(async () =>
             {
                 try
                 {
-                    await Database.SetCreditsAsync(steamId, credits);
-                    Instance.Logger.LogDebug($"Saved {credits} credits for {playerName}");
+                    await Database.SetCreditsAsync(steamId, credits);;
                 }
                 catch (Exception ex)
                 {
