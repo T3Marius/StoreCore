@@ -13,7 +13,7 @@ public class StoreCore : BasePlugin, IPluginConfig<StoreConfig>
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] Core";
-    public override string ModuleVersion => "1.0.4";
+    public override string ModuleVersion => "1.0.5";
     public static StoreCore Instance { get; set; } = new StoreCore();
     public StoreConfig Config { get; set; } = new StoreConfig();
     public Dictionary<ulong, int> PlayerCredits { get; set; } = new Dictionary<ulong, int>();
@@ -43,7 +43,7 @@ public class StoreCore : BasePlugin, IPluginConfig<StoreConfig>
         Capabilities.RegisterPluginCapability(IStoreAPI.Capability, () => STORE_API);
 
         Database.Initialize();
-        InitializeStore(hotReload);             
+        InitializeStore(hotReload);
     }
 
     private void InitializeStore(bool hotReload)
@@ -78,7 +78,8 @@ public class StoreCore : BasePlugin, IPluginConfig<StoreConfig>
     {
         if (hotReload)
         {
-            Server.NextFrame(() => {
+            Server.NextFrame(() =>
+            {
                 StorePlayer.Load();
             });
         }
