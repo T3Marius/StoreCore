@@ -109,19 +109,18 @@ public static class Item
 
         try
         {
-            Instance.Logger.LogDebug($"Loading items for player {steamId}");
             var items = await Database.GetPlayerItemsAsync(steamId);
             _playerItems[steamId] = items;
 
             var equipment = await Database.GetPlayerEquipmentAsync(steamId);
             _playerEquipment[steamId] = equipment;
+
         }
         catch (Exception ex)
         {
             Instance.Logger.LogError($"Failed to load player items: {ex.Message}");
         }
     }
-
     public static bool RegisterItem(string uniqueId, string name, string category, string type, int price, string description = "", bool isSellable = true, bool isBuyable = true, bool isEquipable = true, int duration = 0)
     {
         if (!Database.IsInitialized)
