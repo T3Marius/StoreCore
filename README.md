@@ -34,6 +34,10 @@
   
 - [VIPShop] | You need VIPCore for this. You can allow players to buy vip groups with durations.
 
+- [VIPBhop] | Allows players to buy BHOP from shop, speed aplicable
+
+- [Roulette] | Made by @varkit | Allows players to bet on red/blue/green configurable from config.
+
 - All modules will have a default config automaticly created when added, so no worry about how to use them!.
 
 # Menu Requirements

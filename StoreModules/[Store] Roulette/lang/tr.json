@@ -1,0 +1,15 @@
+﻿{
+	"Red": "Kırmızı",
+	"Blue": "Mavi",
+	"Green": "Yeşil",
+
+	"RouletteTitle": "Rulet Menüsü",
+
+	"Roulette_BetAmountError": "{red}Bahis aralığı {white}{0} {red}ile {white}{1} {red}arasında olmalıdır!",
+	"Roulette_AlreadyBet": "{red}Zaten bir bahiste bulundunuz!",
+	"Roulette_NotEnoughMoney": "{red}Yeterli paranız bulunmamakta!",
+	"Roulette_BetOnColor": "{yellow}Rulette {0} {white}rengine {1} kredi oynadın!",
+	"Roulette_Annnounce": "{yellow}{0} {white}>> {1} {white}| {2} kredi",
+	"Roulette_Winner": "{white}Rulette kazanan renk: {0} {white}!",
+	"Roulette_YouWon": "{white}Ruletten şu kadar kazandın: {0} kredi {white}!"
+}
