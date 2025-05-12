@@ -55,9 +55,9 @@ public class StoreAPI : IStoreAPI
     {
         OnPlayerItemExpired?.Invoke(player, itemData);
     }
-    public bool RegisterItem(string uniqueId, string name, string category, string type, int price, string description = "", bool isSellable = true, bool isBuyable = true, bool isEquipable = true, int duration = 0)
+    public bool RegisterItem(string uniqueId, string name, string category, string type, int price, string description = "", string flags = "", bool isSellable = true, bool isBuyable = true, bool isEquipable = true, int duration = 0)
     {
-        return Item.RegisterItem(uniqueId, name, category, type, price, description, isSellable, isBuyable, isEquipable, duration);
+        return Item.RegisterItem(uniqueId, name, category, type, price, description, flags, isSellable, isBuyable, isEquipable, duration);
     }
     public bool PurchaseItem(CCSPlayerController player, string uniqueId)
     {
