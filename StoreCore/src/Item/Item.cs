@@ -122,7 +122,7 @@ public static class Item
             Instance.Logger.LogError($"Failed to load player items: {ex.Message}");
         }
     }
-    public static bool RegisterItem(string uniqueId, string name, string category, string type, int price, string description = "", bool isSellable = true, bool isBuyable = true, bool isEquipable = true, int duration = 0)
+    public static bool RegisterItem(string uniqueId, string name, string category, string type, int price, string description = "", string flags = "", bool isSellable = true, bool isBuyable = true, bool isEquipable = true, int duration = 0)
     {
         if (!Database.IsInitialized)
         {
@@ -140,6 +140,7 @@ public static class Item
             IsBuyable = isBuyable,
             IsEquipable = isEquipable,
             Duration = duration,
+            Flags = flags
         };
 
         _availableItems[uniqueId] = item;

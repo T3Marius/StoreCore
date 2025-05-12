@@ -12,6 +12,7 @@
             public string Type { get; set; } = string.Empty;
             public int Price { get; set; }
             public string Description { get; set; } = string.Empty;
+            public string Flags { get; set; } = string.Empty;
             public bool IsSellable { get; set; }
             public bool IsBuyable { get; set; }
             public bool IsEquipable { get; set; }

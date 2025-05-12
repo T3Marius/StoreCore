@@ -27,7 +27,7 @@ public static class T3Menu
         menu.AddOption(Instance.Localizer.ForPlayer(player, "inventory<option>"), (p, o) =>
         {
             DisplayInventory(p, menu);
-        });       
+        });
         menu.AddOption(Instance.Localizer.ForPlayer(player, "functions<option>"), (p, o) =>
         {
             DisplayFunctionsMenu(p, menu);
@@ -187,8 +187,12 @@ public static class T3Menu
         {
             foreach (var item in items)
             {
-                bool hasEnoughCredits = playerCredits >= item.Price;
+                List<string> flagsList = item.Flags
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(f => f.Trim())
+                    .ToList();
 
+                bool hasEnoughCredits = playerCredits >= item.Price;
                 bool canBuy = item.IsBuyable && hasEnoughCredits;
 
                 if (item.IsEquipable)
@@ -208,10 +212,21 @@ public static class T3Menu
                     itemDisplay += " " + Instance.Localizer.ForPlayer(player, "item.cannot.afford");
                 }
 
+                bool hasAccess = flagsList.Count == 0 || flagsList.Any(flag => AdminManager.PlayerHasPermissions(player, flag));
+
+                if (!hasAccess)
+                {
+                    itemDisplay += " " + Instance.Localizer.ForPlayer(player, "item.no.acces");
+                }
+
                 menu.AddOption(itemDisplay, (p, o) =>
                 {
-                    DisplayConfirmMenu(p, item.UniqueId, category, menu);
-                }, !canBuy);
+                    if (hasAccess)
+                    {
+                        DisplayConfirmMenu(p, item.UniqueId, category, menu);
+                    }
+                }, !canBuy || !hasAccess);
+
             }
         }
 
@@ -476,7 +491,7 @@ public static class T3Menu
 
         menu.AddOption(Instance.Localizer.ForPlayer(player, "confirm.yes.sell"), (p, o) =>
         {
-            bool sold = Item.SellItem(p, item.UniqueId); 
+            bool sold = Item.SellItem(p, item.UniqueId);
             if (sold)
             {
                 p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["item.sold", item.Name, refundAmount]);

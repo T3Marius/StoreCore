@@ -53,7 +53,7 @@ namespace StoreAPI
         /// <summary>
         /// Register a new store item.
         /// </summary>
-        public bool RegisterItem(string uniqueId, string name, string category, string type, int price, string description = "", bool isSellable = true, bool isBuyable = true, bool isEquipable = true, int duration = 0);
+        public bool RegisterItem(string uniqueId, string name, string category, string type, int price, string description = "", string flags = "", bool isSellable = true, bool isBuyable = true, bool isEquipable = true, int duration = 0);
 
         /// <summary>
         /// Force Purchase item for player.

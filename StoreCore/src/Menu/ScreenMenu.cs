@@ -4,6 +4,7 @@ using CS2ScreenMenuAPI;
 using CounterStrikeSharp.API.Core.Translations;
 using static StoreCore.Lib;
 using StoreAPI;
+using CounterStrikeSharp.API.Modules.Admin;
 
 namespace StoreCore;
 
@@ -81,8 +82,12 @@ public static class ScreenMenu
         {
             foreach (var item in items)
             {
-                bool hasEnoughCredits = playerCredits >= item.Price;
+                List<string> flagsList = item.Flags
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(f => f.Trim())
+                    .ToList();
 
+                bool hasEnoughCredits = playerCredits >= item.Price;
                 bool canBuy = item.IsBuyable && hasEnoughCredits;
 
                 if (item.IsEquipable)
@@ -102,10 +107,21 @@ public static class ScreenMenu
                     itemDisplay += " " + Instance.Localizer.ForPlayer(player, "item.cannot.afford");
                 }
 
+                bool hasAccess = flagsList.Count == 0 || flagsList.Any(flag => AdminManager.PlayerHasPermissions(player, flag));
+
+                if (!hasAccess)
+                {
+                    itemDisplay += " " + Instance.Localizer.ForPlayer(player, "item.no.acces");
+                }
+
                 itemsMenu.AddItem(itemDisplay, (p, o) =>
                 {
-                    DisplayConfirmMenu(p, item.UniqueId, category, itemsMenu);
-                }, !canBuy);
+                    if (hasAccess)
+                    {
+                        DisplayConfirmMenu(p, item.UniqueId, category, itemsMenu);
+                    }
+                }, !canBuy || !hasAccess);
+
             }
         }
 

@@ -129,6 +129,7 @@ public static class Database
                     IsEquipable BOOLEAN NOT NULL,
                     Duration INT NOT NULL DEFAULT 0,
                     Description TEXT,
+                    Flags TEXT,
                     UNIQUE KEY (UniqueId)
                 );", transaction: transaction);
 
@@ -369,24 +370,25 @@ public static class Database
             if (existingItem != null)
             {
                 await connection.ExecuteAsync(@"
-                    UPDATE store_items 
-                    SET Name = @Name, 
-                        Category = @Category, 
-                        Type = @Type, 
-                        Price = @Price, 
-                        IsSellable = @IsSellable, 
-                        IsBuyable = @IsBuyable,
-                        IsEquipable = @IsEquipable,
-                        Duration = @Duration,
-                        Description = @Description
-                    WHERE UniqueId = @UniqueId",
+                UPDATE store_items 
+                SET Name = @Name, 
+                    Category = @Category, 
+                    Type = @Type, 
+                    Price = @Price, 
+                    IsSellable = @IsSellable, 
+                    IsBuyable = @IsBuyable,
+                    IsEquipable = @IsEquipable,
+                    Duration = @Duration,
+                    Description = @Description,
+                    Flags = @Flags
+                WHERE UniqueId = @UniqueId",
                             item);
             }
             else
             {
                 await connection.ExecuteAsync(@"
-                        INSERT INTO store_items (UniqueId, Name, Category, Type, Price, IsSellable, IsBuyable, IsEquipable, Duration, Description)
-                        VALUES (@UniqueId, @Name, @Category, @Type, @Price, @IsSellable, @IsBuyable, @IsEquipable, @Duration, @Description)",
+                    INSERT INTO store_items (UniqueId, Name, Category, Type, Price, IsSellable, IsBuyable, IsEquipable, Duration, Description, Flags)
+                    VALUES (@UniqueId, @Name, @Category, @Type, @Price, @IsSellable, @IsBuyable, @IsEquipable, @Duration, @Description, @Flags)",
                     item);
 
             }

@@ -13,7 +13,7 @@ public class StoreCore : BasePlugin, IPluginConfig<StoreConfig>
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] Core";
-    public override string ModuleVersion => "1.0.6";
+    public override string ModuleVersion => "1.0.7";
     public static StoreCore Instance { get; set; } = new StoreCore();
     public StoreConfig Config { get; set; } = new StoreConfig();
     public Dictionary<ulong, int> PlayerCredits { get; set; } = new Dictionary<ulong, int>();
