@@ -69,6 +69,12 @@ CreditsPerKill = 0        # How many credits player gets from a kill. Put 0 to d
 CreditsPerRoundWin = 0    # How many credits player gets after winning a round. Put 0 to disable it.
 IgnoreWarmup = true       # Give credits during warmup? true to not or false to do.
 
+[Multiplier]
+CreditsPerInterval = { "@css/vip" = 2, "@css/root" = 4 }        # credits per interval multiplier for these flags.
+CreditsPerKill = { "@css/vip" = 2, "@css/root" = 4 }
+CreditsPerRoundWin = { "@css/vip" = 2, "@css/root" = 4 }
+
+
 [Commands]
 OpenStore = ["store", "shop", "market"]          # commands to open the main store.
 ShowCredits = ["credits", "mycredits"]           # commands to show your current credits.
@@ -79,7 +85,7 @@ GiftCredits = ["giftcredits", "gift"]            # commands to gift someone cred
 ResetCredits = ["rc", "resetcredits"]            # commands to reset all players credits
 
 [Permissions]		# set permission foreach command.
-StoreCommand = [""]
+StoreCommand = []
 AddCredits = ["@css/root"]
 RemoveCredits = ["@css/root"]
 SetCredits = ["@css/root"]
