@@ -20,38 +20,29 @@
     "confirm.no.sell": "No",
     "no.categories": "There are no categories!",
     "no.items": "There are no items in this category!",
-
     "item.unequipped.t": "You unequipped {lime}{0}{silver} item for {orange}TERRORIST{silver} Team.",
     "item.equipped.t": "You equipped {lime}{0}{silver} item for {orange}TERRORIST{silver} Team.",
-
     "item.unequipped.ct": "You unequipped {lime}{0}{silver} item for {blue}COUNTER-TERRORIST{silver} Team.",
     "item.equipped.ct": "You equipped {lime}{0}{silver} item for {blue}COUNTER-TERRORIST{silver} Team.",
     "item.sold": "Item {lime}{0}{silver} was sold for {purple}{1} credits{silver}!",
-
     "item.display": "{0} [{1}]",
     "item.owned": "[Owned]",
     "item.bought": "You bought {lime}{0}{silver} for {purple}{1} credits{silver}!",
-
     "item.not.enough": "Item {lime}{0}{silver} price is {purple}{1}credits{silver}. You don't have enough!",
-
+    "item.no.acces": "[No Acces]",
     "item.price": "Price: {0}",
     "item.type": "Type: {0}",
     "item.description": "Info: {0}",
     "item.cannot.afford": "[No Credits]",
-
     "confirm.yes": "Buy [{0}]",
     "confirm.no": "Cancel",
-
     "activity.reward": "You got {purple}{0} credits{silver} for activity!",
     "invalid.credits": "{red}Invalid{silver} amount of credits, please try again!",
     "no.owned.items": "No items owned",
-
     "item.equip.t": "Terrorist [{0}]",
     "item.equip.ct": "Counter-Terrorist [{0}]",
-
     "item.equip.t.t3menu": "Terrorist",
     "item.equip.ct.t3menu": "Counter-Terrorist",
-
     "credits.added": "Admin {purple}{0}{silver} added {magenta}{1} credits{silver} to {blue}{2}{silver}!",
     "credits.added.multiple": "Admin {purple}{0}{silver} added {magenta}{1} credits{silver} to {blue}{2}{silver} players!",
     "credits.removed": "Admin {purple}{0}{silver} removed {magenta}{1} credits{silver} from {blue}{2}{silver}!",
@@ -61,19 +52,15 @@
     "credits.set.multiple": "Admin {purple}{0}{silver} set {magenta}{1} credits{silver} to {blue}{2}{silver} players!",
     "round.won": "You got {purple}{0} credits{silver} for winning the round!",
     "kill.reward": "You got {purple}{0} credits{silver} for this kill!",
-
     "not.enough.credits": "{red}You don't have enough credits{silver}!",
     "cant.gift.yourself": "You can't gift to yourself! Idiot!'",
     "credits.recieved": "Player {purple}{0}{silver} gave you {purple}{1} credits{silver}!",
     "credits.gifted": "You gifted {blue}{0}{silver} {purple}{1} credits{silver}!",
-
     "resetcredits<confirm>": "Reset everyone's credits?",
     "confirm<yes>": "Yes",
     "confirm<no>": "No",
     "credits.reset": "Succesfully reseted credits for {0} players!",
-
     "no.permission": "You don't have permission to use this command!",
-
     "input.GiveCredits": "Add Credits",
     "input.GiftCredits": "Gift Credits",
     "input.GiftCredits.message": "Write the amount of credits you wanna gift to {purple}{0}{silver} in chat.",
@@ -85,7 +72,6 @@
     "input.GiveCredits.PlaceHolder": "Enter Amount",
     "input.GiftCredits.PlaceHolder": "Enter Amount",
     "functions<option>": "Functions",
-
     "duration.permanent": "Permanent",
     "duration.seconds": "{0} seconds",
     "duration.minutes": "{0} minutes",

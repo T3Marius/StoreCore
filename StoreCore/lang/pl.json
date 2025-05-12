@@ -29,6 +29,7 @@
     "item.owned": "[Posiadane]",
     "item.bought": "Kupiłeś {lime}{0}{silver} za {purple}{1} kredytów{silver}!",
     "item.not.enough": "Przedmiot {lime}{0}{silver} kosztuje {purple}{1}kredytów{silver}. Nie masz wystarczającej ilości!",
+    "item.no.acces": "[Dostęp wzbroniony]",
     "item.price": "Cena: {0}",
     "item.type": "Typ: {0}",
     "item.description": "Info: {0}",
