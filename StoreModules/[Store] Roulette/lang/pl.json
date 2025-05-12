@@ -7,7 +7,7 @@
 
     "Roulette_BetAmountError": "{red}Kwota zakładu musi mieścić się między {white}{0} {red}a {white}{1} {red}!",
     "Roulette_AlreadyBet": "{red}Już postawiłeś zakład!",
-    "Roulette_NotEnoughMoney": "{red}Nie masz wystarczająco pieniędzy!",
+    "Roulette_NotEnoughMoney": "{red}Nie masz wystarczająco kredytów!",
     "Roulette_BetOnColor": "{yellow}Postawiłeś {1} kredytów na kolor {0} {white}w ruletce!",
     "Roulette_Annnounce": "{yellow}{0} {white}>> {1} {white}| {2} kredytów",
     "Roulette_Winner": "{white}Wygrywający kolor w ruletce: {0} {white}!",
