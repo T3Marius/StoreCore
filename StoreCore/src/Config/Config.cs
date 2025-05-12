@@ -6,13 +6,14 @@ public class StoreConfig : BasePluginConfig
 {
     public Database_Config Database { get; set; } = new Database_Config();
     public Main_Config MainConfig { get; set; } = new Main_Config();
+    public Credits_Multiplier Multiplier { get; set; } = new Credits_Multiplier();
     public Commands_Config Commands { get; set; } = new Commands_Config();
     public Permission_Config Permissions { get; set; } = new Permission_Config();
 
 }
 public class Permission_Config
 {
-    public List<string> StoreCommand { get; set; } = [""];
+    public List<string> StoreCommand { get; set; } = [];
     public List<string> AddCredits { get; set; } = ["@css/root"];
     public List<string> RemoveCredits { get; set; } = ["@css/root"];
     public List<string> SetCredits { get; set; } = ["@css/rcon"];
@@ -27,6 +28,28 @@ public class Main_Config
     public int CreditsPerKill { get; set; } = 5;
     public int CreditsPerRoundWin { get; set; } = 20;
     public bool IgnoreWarmup { get; set; } = true;
+}
+public class Credits_Multiplier
+{
+    public Dictionary<string, int> CreditsPerInterval { get; set; } = new Dictionary<string, int>()
+    {
+        {
+            "@css/vip", 2
+        }
+    };
+    public Dictionary<string, int> CreditsPerKill { get; set; } = new Dictionary<string, int>()
+    {
+        {
+            "@css/vip", 2
+        }
+    };
+    public Dictionary<string, int> CreditsPerRoundWin { get; set; } = new Dictionary<string, int>()
+    {
+        {
+            "@css/vip", 2
+        }
+    };
+
 }
 public class Commands_Config
 {

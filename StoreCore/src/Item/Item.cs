@@ -3,6 +3,7 @@ using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using StoreAPI;
 using static StoreCore.StoreCore;
+using CounterStrikeSharp.API.Modules.Timers;
 
 
 namespace StoreCore;
@@ -22,7 +23,7 @@ public static class Item
         {
             if (!Database.IsInitialized)
                 return;
-  
+
 
             await LoadItemsFromDatabase();
 
@@ -39,7 +40,7 @@ public static class Item
             {
                 CheckExpiredItems(player);
             }
-        }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT);
+        }, TimerFlags.REPEAT);
     }
     private static int GetTotalItemCount()
     {
@@ -198,7 +199,7 @@ public static class Item
         {
             expirationDate = DateTime.UtcNow.AddSeconds(item.Duration);
         }
-            
+
         var playerItem = new Store.Store_Item
         {
             SteamID = steamId,
@@ -215,7 +216,7 @@ public static class Item
             DateOfPurchase = DateTime.UtcNow,
             DateOfExpiration = expirationDate
         };
-        
+
         _playerItems[steamId].Add(playerItem);
 
         Task.Run(async () =>

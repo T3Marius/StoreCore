@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Timers;
 using Microsoft.Extensions.Logging;
 using static StoreCore.StoreCore;
@@ -49,8 +50,23 @@ public static class StorePlayer
             {
                 foreach (var player in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV && p.IsValid))
                 {
-                    player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activity.reward", Instance.Config.MainConfig.CreditsPerInterval]);
-                    STORE_API.AddClientCredits(player, Instance.Config.MainConfig.CreditsPerInterval);
+                    int credits = Instance.Config.MainConfig.CreditsPerInterval;
+                    foreach (var kvp in Instance.Config.Multiplier.CreditsPerInterval)
+                    {
+                        string flag = kvp.Key;
+                        int multiplier = kvp.Value;
+
+                        if (AdminManager.PlayerHasPermissions(player, flag))
+                        {
+                            STORE_API.AddClientCredits(player, credits * multiplier);
+                            player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activity.reward", credits * multiplier]);
+                        }
+                        else
+                        {
+                            player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activity.reward", credits]);
+                            STORE_API.AddClientCredits(player, credits);
+                        }
+                    }
                 }
             }, TimerFlags.REPEAT);
         }

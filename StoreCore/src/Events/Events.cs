@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Admin;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static StoreCore.StoreCore;
 
@@ -37,8 +38,22 @@ public static class Events
                 int credits = Instance.Config.MainConfig.CreditsPerKill;
                 if (credits > 0)
                 {
-                    STORE_API.AddClientCredits(attacker, credits);
-                    attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", credits]);
+                    foreach (var kvp in Instance.Config.Multiplier.CreditsPerKill)
+                    {
+                        string flag = kvp.Key;
+                        int multiplier = kvp.Value;
+
+                        if (AdminManager.PlayerHasPermissions(attacker, flag))
+                        {
+                            STORE_API.AddClientCredits(attacker, credits * multiplier);
+                            attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", credits * multiplier]);
+                        }
+                        else
+                        {
+                            STORE_API.AddClientCredits(attacker, credits);
+                            attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", credits]);
+                        }
+                    }
                 }
             }
         }
@@ -49,8 +64,22 @@ public static class Events
                 int credits = Instance.Config.MainConfig.CreditsPerKill;
                 if (credits > 0)
                 {
-                    STORE_API.AddClientCredits(attacker, credits);
-                    attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", credits]);
+                    foreach (var kvp in Instance.Config.Multiplier.CreditsPerKill)
+                    {
+                        string flag = kvp.Key;
+                        int multiplier = kvp.Value;
+
+                        if (AdminManager.PlayerHasPermissions(attacker, flag))
+                        {
+                            STORE_API.AddClientCredits(attacker, credits * multiplier);
+                            attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", credits * multiplier]);
+                        }
+                        else
+                        {
+                            STORE_API.AddClientCredits(attacker, credits);
+                            attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", credits]);
+                        }
+                    }
                 }
             }
         }
@@ -65,8 +94,22 @@ public static class Events
             {
                 if (p.TeamNum == @event.Winner)
                 {
-                    STORE_API.AddClientCredits(p, Instance.Config.MainConfig.CreditsPerRoundWin);
-                    p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["round.won", Instance.Config.MainConfig.CreditsPerRoundWin]);
+                    foreach (var kvp in Instance.Config.Multiplier.CreditsPerRoundWin)
+                    {
+                        string flag = kvp.Key;
+                        int multiplier = kvp.Value;
+
+                        if (AdminManager.PlayerHasPermissions(p, flag))
+                        {
+                            STORE_API.AddClientCredits(p, Instance.Config.MainConfig.CreditsPerRoundWin * multiplier);
+                            p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["round.won", Instance.Config.MainConfig.CreditsPerRoundWin * multiplier]);
+                        }
+                        else
+                        {
+                            STORE_API.AddClientCredits(p, Instance.Config.MainConfig.CreditsPerRoundWin);
+                            p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["round.won", Instance.Config.MainConfig.CreditsPerRoundWin]);
+                        }
+                    }
                 }
             }
         }
