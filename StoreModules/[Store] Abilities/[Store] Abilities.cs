@@ -8,11 +8,11 @@ using Microsoft.Extensions.Logging;
 
 namespace StoreCore;
 
-public class Speed : BasePlugin
+public class Abilities : BasePlugin
 {
     public override string ModuleAuthor => "T3Marius";
-    public override string ModuleName => "[Store] Speed";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleName => "[Store] Abilities";
+    public override string ModuleVersion => "1.0.1";
     public IStoreAPI? StoreApi;
 
     public Timer? SpeedTimer;
@@ -37,6 +37,7 @@ public class Speed : BasePlugin
                 speed.Type,
                 speed.Price,
                 speed.Description,
+                speed.Flags,
                 isEquipable: false
                 );
         }
@@ -51,6 +52,7 @@ public class Speed : BasePlugin
                 gravity.Type,
                 gravity.Price,
                 gravity.Description,
+                gravity.Flags,
                 isEquipable: false
                 );
         }
@@ -65,6 +67,7 @@ public class Speed : BasePlugin
                 god.Type,
                 god.Price,
                 god.Description,
+                god.Flags,
                 isEquipable: false
                 );
         }
@@ -187,6 +190,7 @@ public class PluginConfig
                 Name = "God (10 sec)",
                 Timer = 10.0f,
                 Description = "Gives you god for 10 seconds",
+                Flags = "@css/god,@css/generic",
                 Type = "abilities",
                 Price = 1850
             }
@@ -200,6 +204,7 @@ public class Speed_Item
     public float Speed { get; set; } = 0;
     public float Timer { get; set; } = 0;
     public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public int Price { get; set; } = 0;
 }
@@ -210,6 +215,7 @@ public class Gravity_Item
     public float Gravity { get; set; } = 0;
     public float Timer { get; set; } = 0;
     public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public int Price { get; set; } = 0;
 }
@@ -219,6 +225,7 @@ public class God_Item
     public string Name { get; set; } = string.Empty;
     public float Timer { get; set; } = 0;
     public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public int Price { get; set; } = 0;
 }

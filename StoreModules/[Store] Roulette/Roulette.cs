@@ -22,7 +22,7 @@ namespace StoreCore_Roulette
     public partial class Roulette : BasePlugin
     {
         public override string ModuleName => "StoreCore Roulette";
-        public override string ModuleVersion => "0.0.3";
+        public override string ModuleVersion => "0.0.4";
         public override string ModuleAuthor => "varkit & thanks for the jinn";
         public RouletteConfig Config { get; set; }
         public IStoreAPI? StoreApi { get; set; }

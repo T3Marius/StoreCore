@@ -9,7 +9,7 @@ public class VIPShop : BasePlugin
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] VIPShop";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.0.1";
     public IStoreAPI? StoreApi;
     public PluginConfig Config { get; set; } = new PluginConfig();
     public override void OnAllPluginsLoaded(bool hotReload)
@@ -28,6 +28,7 @@ public class VIPShop : BasePlugin
                 vip.Type,
                 vip.Price,
                 vip.Description,
+                vip.Flags,
                 isEquipable: false,
                 isSellable: false
             );
@@ -61,6 +62,7 @@ public class PluginConfig
                 Command = "css_vip_adduser {steamid} VIP 172800",
                 Type = "vip",
                 Description = "Gives you VIP for 2 days",
+                Flags = "",
                 Price = 5000,
             }
         }
@@ -73,5 +75,6 @@ public class Vip_Item
     public string Command { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
     public int Price { get; set; } = 0;
 }

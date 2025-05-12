@@ -11,7 +11,7 @@ public class PlayerModels : BasePlugin
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] PlayerModels";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.0.1";
     public IStoreAPI? StoreApi;
     public PluginConfig Config { get; set; } = new PluginConfig();
     public override void Load(bool hotReload)
@@ -36,11 +36,12 @@ public class PlayerModels : BasePlugin
                     playerModel.Type,
                     playerModel.Price,
                     playerModel.Description,
+                    playerModel.Flags,
                     duration: playerModel.Duration);
             }
         }
 
-        
+
         StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
         StoreApi.OnPlayerUnequipItem += OnPlayerUnequipItem;
         StoreApi.OnPlayerEquipItem += OnPlayerEquipItem;
@@ -237,6 +238,7 @@ public class PluginConfig
                 Name = "FrogMan",
                 ModelPath = "characters/models/ctm_diver/ctm_diver_variantb.vmdl",
                 Description = "Gives you a in-game model",
+                Flags = "",
                 Type = "PlayerModel",
                 Price = 3500,
                 Duration = 86000
@@ -250,6 +252,7 @@ public class PlayerModel_Item
     public string Name { get; set; } = string.Empty;
     public string ModelPath { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public int Price { get; set; } = 0;
     public int Duration { get; set; } = 0;

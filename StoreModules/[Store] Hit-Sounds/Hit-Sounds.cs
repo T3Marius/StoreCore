@@ -8,7 +8,7 @@ public class HitSounds : BasePlugin
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store Core] Hit-Sounds";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.0.1";
     public IStoreAPI? StoreApi;
     public PluginConfig? Config;
     public override void Load(bool hotReload)
@@ -24,23 +24,19 @@ public class HitSounds : BasePlugin
         {
             foreach (var kvp in Config.HitSounds)
             {
-                string ID = kvp.Value.Id;
-                string NAME = kvp.Value.Name;
-                string DESCRIPTION = kvp.Value.Description;
-                int PRICE = kvp.Value.Price;
-                int DURATION = kvp.Value.Duration;
-
+                var hitSound = kvp.Value;
                 StoreApi.RegisterItem(
-                    ID,
-                    NAME,
+                    hitSound.Id,
+                    hitSound.Name,
                     Config.CategoryName,
                     "Sound",
-                    PRICE,
-                    DESCRIPTION,
+                    hitSound.Price,
+                    hitSound.Description,
+                    hitSound.Flags,
                     true,
                     true,
                     true,
-                    DURATION);
+                    hitSound.Duration);
             }
         }
         StoreApi.OnItemPreview += OnItemPreview;
@@ -98,10 +94,11 @@ public class PluginConfig
                 Name = "Bell Sound",
                 SoundPath = "sounds/training/bell_normal.vsnd_c",
                 Description = "Plays a bell sound",
+                Flags = "",
                 Price = 1200,
                 Duration = 0
             }
-        }
+        },
     };
 }
 public class Hit_Sounds
@@ -110,6 +107,7 @@ public class Hit_Sounds
     public string Name { get; set; } = string.Empty;
     public string SoundPath { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
     public int Price { get; set; } = 0;
     public int Duration { get; set; } = 0;
 

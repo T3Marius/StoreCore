@@ -12,7 +12,7 @@ public class Bhop : BasePlugin
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] Bhop";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.0.1";
 
     public IStoreAPI? StoreApi;
     public PluginConfig Config { get; set; } = new PluginConfig();
@@ -50,6 +50,7 @@ public class Bhop : BasePlugin
                 bhop.Type,
                 bhop.Price,
                 bhop.Description,
+                bhop.Flags,
                 duration: bhop.Duration
             );
         }
@@ -257,6 +258,19 @@ public class PluginConfig
                 Description = "Gives you bhop with speed limit of 350 for 3 minutes",
                 Type = "bhop",
             }
+        },
+        {
+            "3", new Bhop_Item
+            {
+                Id = "admin_speed_bhop",
+                Name = "Bhop (Only Admin)",
+                Duration = 180,
+                Price = 2000,
+                MaxSpeed = 350,
+                Description = "Gives you bhop with speed limit of 350 for 3 minutes",
+                Flags = "@css/generic",
+                Type = "bhop",
+            }
         }
     };
 }
@@ -270,6 +284,7 @@ public class Bhop_Item
     public int MaxSpeed { get; set; } = 0;
     public string Type { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
 }
 
 public class BhopPlayerData

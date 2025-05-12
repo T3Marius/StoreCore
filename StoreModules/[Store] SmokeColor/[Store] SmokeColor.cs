@@ -9,7 +9,7 @@ public class SmokeColor : BasePlugin
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] SmokeColor";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.0.1";
     public IStoreAPI? StoreApi;
     public PluginConfig Config { get; set; } = new PluginConfig();
     public override void Load(bool hotReload)
@@ -76,7 +76,7 @@ public class SmokeColor : BasePlugin
 }
 public class PluginConfig
 {
-    public string Category { get; set; } = string.Empty;
+    public string Category { get; set; } = "Smoke Colors";
     public Dictionary<string, Smoke_Item> Smokes { get; set; } = new Dictionary<string, Smoke_Item>()
     {
         {
@@ -87,6 +87,7 @@ public class PluginConfig
                 Id = "red_smoke",
                 Type = "Smoke",
                 Description = "Turns your smoke RED",
+                Flags = "",
                 Price = 100,
                 Duration = 30
             }
@@ -100,6 +101,7 @@ public class Smoke_Item
     public string Id { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
     public int Price { get; set; } = 0;
     public int Duration { get; set; } = 0;
 }

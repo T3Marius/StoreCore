@@ -12,7 +12,7 @@ public class Trails : BasePlugin
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] Trails";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.0.1";
 
     public IStoreAPI? StoreApi;
     public PluginConfig Config { get; set; } = new PluginConfig();
@@ -41,6 +41,7 @@ public class Trails : BasePlugin
                 trail.Type,
                 trail.Price,
                 trail.Description,
+                trail.Flags,
                 duration: trail.Duration
             );
         }
@@ -308,6 +309,7 @@ public class PluginConfig
                 Duration = 10080,
                 Type = "trail",
                 Description = "Leaves a rainbow trail behind you",
+                Flags = "@css/gay",
                 Width = 1.0f,
                 LifeTime = 1.0f
             }
@@ -339,6 +341,7 @@ public class Trail_Item
     public int Duration { get; set; } = 0;
     public string Type { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
     public float Width { get; set; } = 0;
     public float LifeTime { get; set; } = 0;
 }

@@ -9,7 +9,7 @@ public class SpawnEffects : BasePlugin
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] SpawnEffects";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.0.1";
     public IStoreAPI? StoreApi;
     public PluginConfig Config { get; set; } = new PluginConfig();
     public override void Load(bool hotReload)
@@ -34,6 +34,7 @@ public class SpawnEffects : BasePlugin
                     spawnEffect.Type,
                     spawnEffect.Price,
                     spawnEffect.Description,
+                    spawnEffect.Flags,
                     duration: spawnEffect.Duration);
             }
         }
@@ -63,7 +64,7 @@ public class SpawnEffects : BasePlugin
             return;
 
         CHEGrenadeProjectile? grenade = Utilities.CreateEntityByName<CHEGrenadeProjectile>("hegrenade_projectile");
-        if (grenade == null || !grenade.IsValid) 
+        if (grenade == null || !grenade.IsValid)
             return;
 
         var node = pawn.CBodyComponent?.SceneNode;
@@ -96,7 +97,8 @@ public class PluginConfig
                 Price = 1500,
                 Duration = 240,
                 Type = "Effect",
-                Description = ""
+                Description = "",
+                Flags = "",
             }
         }
     };
@@ -109,4 +111,5 @@ public class SpawnEffect_Item
     public int Duration { get; set; } = 0;
     public string Type { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
 }

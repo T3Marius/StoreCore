@@ -9,7 +9,7 @@ public class Flags : BasePlugin
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] Flags";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.0.1";
     public IStoreAPI? StoreApi;
     public PluginConfig Config { get; set; } = new PluginConfig();
     public override void Load(bool hotReload)
@@ -34,6 +34,7 @@ public class Flags : BasePlugin
                     flag.Type,
                     flag.Price,
                     flag.Description,
+                    flag.Flags,
                     duration: flag.Duration,
                     isEquipable: false
                     );
@@ -42,14 +43,14 @@ public class Flags : BasePlugin
 
         StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
         StoreApi.OnPlayerItemExpired += OnPlayerItemExpired;
-        
+
     }
     public void OnPlayerItemExpired(CCSPlayerController player, Dictionary<string, string> Item)
     {
         foreach (var kvp in Config.Flags)
         {
             var flag = kvp.Value;
-            
+
             if (Item["uniqueid"] == flag.Id)
             {
                 AdminManager.RemovePlayerPermissions(player, flag.Flag);
@@ -102,10 +103,11 @@ public class PluginConfig
                 Name = "Slot Flag",
                 Flag = "@css/slot",
                 Description = "Gives you slot flag acces",
+                Flags = "",
                 Type = "Flags",
                 Price = 2500,
                 Duration = 0,
-                
+
             }
         }
     };
@@ -116,6 +118,7 @@ public class Flag_Item
     public string Name { get; set; } = string.Empty;
     public string Flag { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public int Price { get; set; } = 0;
     public int Duration { get; set; } = 0;

@@ -11,7 +11,7 @@ public class Tracers : BasePlugin
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] Tracers";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.0.1";
     public IStoreAPI? StoreApi;
     public PluginConfig Config { get; set; } = new PluginConfig();
     public static readonly QAngle RotationZero = new(0, 0, 0);
@@ -36,6 +36,7 @@ public class Tracers : BasePlugin
                 tracer.Type,
                 tracer.Price,
                 tracer.Description,
+                tracer.Flags,
                 duration: tracer.Duration
             );
         }
@@ -161,6 +162,7 @@ public class PluginConfig
             Color = "Random",
             Type = "tracer",
             Description = "Gives you random tracer color",
+            Flags = "@css/vip,@css/generic",
             Price = 2500,
             Duration = 82300
         }
@@ -174,6 +176,7 @@ public class Tracer_Item
     public string Color { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
     public int Price { get; set; } = 0;
     public int Duration { get; set; } = 0;
 }

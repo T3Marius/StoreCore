@@ -8,7 +8,7 @@ public class Killscreen : BasePlugin
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[StoreCore] Killscreen";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.0.1";
     public IStoreAPI? StoreApi;
     public PluginConfig Config { get; set; } = new PluginConfig();
     public override void Load(bool hotReload)
@@ -33,6 +33,7 @@ public class Killscreen : BasePlugin
                     killScreen.Type,
                     killScreen.Price,
                     killScreen.Description,
+                    killScreen.Flags,
                     duration: killScreen.Duration);
             }
         }
@@ -42,7 +43,7 @@ public class Killscreen : BasePlugin
     {
         CCSPlayerController? victim = @event.Userid;
         CCSPlayerController? attacker = @event.Attacker;
-        
+
         if (victim == null || attacker == null || victim == attacker)
             return HookResult.Continue;
 
@@ -95,17 +96,19 @@ public class PluginConfig
                 Price = 500,
                 Duration = 120,
                 Type = "Visual",
-                Description = ""
+                Description = "",
+                Flags = ""
             }
         },
     };
 }
 public class Killscreen_Item
 {
-    public string Id { get; set; } = "store_killscreen";
-    public string Name { get; set; } = "Killscreen";
-    public int Price { get; set; } = 1500;
-    public int Duration { get; set; } = 240;
-    public string Type { get; set; } = "Visual";
-    public string Description { get; set; } = "";
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public int Price { get; set; } = 0;
+    public int Duration { get; set; } = 0;
+    public string Type { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
 }
