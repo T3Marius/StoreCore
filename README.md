@@ -38,6 +38,8 @@
 
 - [Roulette] | Made by @varkit | Allows players to bet on red/blue/green configurable from config.
 
+- [Parachute] | Made by @varkit | Allows players to fall slowly by holding E key.
+
 - All modules will have a default config automaticly created when added, so no worry about how to use them!.
 
 # Menu Requirements
