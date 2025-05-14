@@ -48,24 +48,29 @@ public static class StorePlayer
         {
             Instance.AddTimer(Instance.Config.MainConfig.PlaytimeInterval, () =>
             {
-                foreach (var player in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV && p.IsValid))
+                foreach (var player in Utilities.GetPlayers().Where(p => p != null && !p.IsBot && !p.IsHLTV && p.IsValid && p.PawnIsAlive))
                 {
-                    int credits = Instance.Config.MainConfig.CreditsPerInterval;
+                    int baseCredits = Instance.Config.MainConfig.CreditsPerInterval;
+                    bool multiplierApplied = false;
+
                     foreach (var kvp in Instance.Config.Multiplier.CreditsPerInterval)
                     {
                         string flag = kvp.Key;
-                        int multiplier = kvp.Value;
+                        int multiplierValue = kvp.Value;
 
                         if (AdminManager.PlayerHasPermissions(player, flag))
                         {
-                            STORE_API.AddClientCredits(player, credits * multiplier);
-                            player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activity.reward", credits * multiplier]);
+                            STORE_API.AddClientCredits(player, baseCredits * multiplierValue);
+                            player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activity.reward", baseCredits * multiplierValue]);
+                            multiplierApplied = true;
+                            break;
                         }
-                        else
-                        {
-                            player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activity.reward", credits]);
-                            STORE_API.AddClientCredits(player, credits);
-                        }
+                    }
+
+                    if (!multiplierApplied)
+                    {
+                        STORE_API.AddClientCredits(player, baseCredits);
+                        player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activity.reward", baseCredits]);
                     }
                 }
             }, TimerFlags.REPEAT);

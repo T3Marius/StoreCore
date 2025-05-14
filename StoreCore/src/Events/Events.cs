@@ -21,99 +21,80 @@ public static class Events
         CCSPlayerController? victim = @event.Userid;
         CCSPlayerController? attacker = @event.Attacker;
 
-        if (attacker == null || victim == null)
+        if (attacker == null || victim == null || attacker == victim || attacker.IsBot || !attacker.IsValid)
             return HookResult.Continue;
 
-        var gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()!.GameRules;
+        var gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()?.GameRules;
         if (gameRules == null)
             return HookResult.Continue;
 
-        if (Instance.Config.MainConfig.IgnoreWarmup)
+        if (Instance.Config.MainConfig.IgnoreWarmup && gameRules.WarmupPeriod)
+            return HookResult.Continue;
+
+        int baseCredits = Instance.Config.MainConfig.CreditsPerKill;
+        if (baseCredits > 0)
         {
-            if (gameRules.WarmupPeriod)
-                return HookResult.Continue;
+            bool multiplierApplied = false;
 
-            if (attacker != victim)
+            foreach (var kvp in Instance.Config.Multiplier.CreditsPerKill)
             {
-                int credits = Instance.Config.MainConfig.CreditsPerKill;
-                if (credits > 0)
-                {
-                    foreach (var kvp in Instance.Config.Multiplier.CreditsPerKill)
-                    {
-                        string flag = kvp.Key;
-                        int multiplier = kvp.Value;
+                string flag = kvp.Key;
+                int multiplierValue = kvp.Value;
 
-                        if (AdminManager.PlayerHasPermissions(attacker, flag))
-                        {
-                            STORE_API.AddClientCredits(attacker, credits * multiplier);
-                            attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", credits * multiplier]);
-                        }
-                        else
-                        {
-                            STORE_API.AddClientCredits(attacker, credits);
-                            attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", credits]);
-                        }
-                    }
+                if (AdminManager.PlayerHasPermissions(attacker, flag))
+                {
+                    STORE_API.AddClientCredits(attacker, baseCredits * multiplierValue);
+                    attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", baseCredits * multiplierValue]);
+                    multiplierApplied = true;
+                    break;
                 }
             }
-        }
-        else
-        {
-            if (attacker != victim)
-            {
-                int credits = Instance.Config.MainConfig.CreditsPerKill;
-                if (credits > 0)
-                {
-                    foreach (var kvp in Instance.Config.Multiplier.CreditsPerKill)
-                    {
-                        string flag = kvp.Key;
-                        int multiplier = kvp.Value;
 
-                        if (AdminManager.PlayerHasPermissions(attacker, flag))
-                        {
-                            STORE_API.AddClientCredits(attacker, credits * multiplier);
-                            attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", credits * multiplier]);
-                        }
-                        else
-                        {
-                            STORE_API.AddClientCredits(attacker, credits);
-                            attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", credits]);
-                        }
-                    }
-                }
+            if (!multiplierApplied)
+            {
+                STORE_API.AddClientCredits(attacker, baseCredits);
+                attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", baseCredits]);
             }
         }
-
         return HookResult.Continue;
     }
     public static HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
-        foreach (var p in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV))
+        var gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()?.GameRules;
+        if (gameRules != null && Instance.Config.MainConfig.IgnoreWarmup && gameRules.WarmupPeriod)
+            return HookResult.Continue;
+
+        foreach (var p in Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsBot && !p.IsHLTV))
         {
             if (Instance.Config.MainConfig.CreditsPerRoundWin > 0)
             {
                 if (p.TeamNum == @event.Winner)
                 {
+                    int baseCredits = Instance.Config.MainConfig.CreditsPerRoundWin;
+                    bool multiplierApplied = false;
+
                     foreach (var kvp in Instance.Config.Multiplier.CreditsPerRoundWin)
                     {
                         string flag = kvp.Key;
-                        int multiplier = kvp.Value;
+                        int multiplierValue = kvp.Value;
 
                         if (AdminManager.PlayerHasPermissions(p, flag))
                         {
-                            STORE_API.AddClientCredits(p, Instance.Config.MainConfig.CreditsPerRoundWin * multiplier);
-                            p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["round.won", Instance.Config.MainConfig.CreditsPerRoundWin * multiplier]);
+                            STORE_API.AddClientCredits(p, baseCredits * multiplierValue);
+                            p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["round.won", baseCredits * multiplierValue]);
+                            multiplierApplied = true;
+                            break;
                         }
-                        else
-                        {
-                            STORE_API.AddClientCredits(p, Instance.Config.MainConfig.CreditsPerRoundWin);
-                            p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["round.won", Instance.Config.MainConfig.CreditsPerRoundWin]);
-                        }
+                    }
+
+                    if (!multiplierApplied)
+                    {
+                        STORE_API.AddClientCredits(p, baseCredits);
+                        p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["round.won", baseCredits]);
                     }
                 }
             }
         }
-
         return HookResult.Continue;
     }
     public static HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
