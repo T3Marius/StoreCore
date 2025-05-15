@@ -40,6 +40,8 @@
 
 - [Parachute] | Made by @Mesharsky | Allows players to fall slowly by holding E key.
 
+- [Medic] | Made by @GSM-RO | Standard Medic Module.
+
 - All modules will have a default config automaticly created when added, so no worry about how to use them!.
 
 # Menu Requirements
