@@ -302,11 +302,15 @@ public static class T3Menu
         }
         else
         {
+            bool hasAnyItems = false;
+
             foreach (var category in categories)
             {
                 var playerItems = Item.GetPlayerItems(player.SteamID, category);
+
                 if (playerItems.Count > 0)
                 {
+                    hasAnyItems = true;
                     menu.AddOption(category, (p, option) =>
                     {
                         DisplayInventoryItems(p, category, menu);
@@ -314,7 +318,7 @@ public static class T3Menu
                 }
             }
 
-            if (menu.Options.Count == 0)
+            if (!hasAnyItems)
             {
                 menu.AddOption(Instance.Localizer.ForPlayer(player, "no.owned.items"), (p, o) => { }, true);
             }

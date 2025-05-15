@@ -239,11 +239,15 @@ public static class ScreenMenu
         }
         else
         {
+            bool hasAnyItems = false;
+
             foreach (var category in categories)
             {
                 var playerItems = Item.GetPlayerItems(player.SteamID, category);
+
                 if (playerItems.Count > 0)
                 {
+                    hasAnyItems = true;
                     inventoryCategoryMenu.AddItem(category, (p, option) =>
                     {
                         DisplayInventoryItems(p, category, inventoryCategoryMenu);
@@ -251,7 +255,7 @@ public static class ScreenMenu
                 }
             }
 
-            if (inventoryCategoryMenu.Options.Count == 0)
+            if (!hasAnyItems)
             {
                 inventoryCategoryMenu.AddItem(Instance.Localizer.ForPlayer(player, "no.owned.items"), (p, o) => { }, true);
             }
