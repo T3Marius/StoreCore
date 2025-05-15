@@ -63,16 +63,17 @@ Pass = ""
 Port = 3306
 
 [MainConfig]
-MenuType = "t3"           # there are only 2 menus, screen or t3.
-StartCredits = 0          # How much credits a new player will have at start. 
-PlaytimeInterval = 60     # Each second player will be awarded with credits for activity. Put 0 to disabled it. 
-CreditsPerInterval = 0    # How many credits player gets per activity interval. Put 0 to disable it.
-CreditsPerKill = 0        # How many credits player gets from a kill. Put 0 to disable it.
-CreditsPerRoundWin = 0    # How many credits player gets after winning a round. Put 0 to disable it.
-IgnoreWarmup = true       # Give credits during warmup? true to not or false to do.
+MenuType = "t3"              # there are only 2 menus, screen or t3.
+StartCredits = 0             # How much credits a new player will have at start. 
+PlaytimeInterval = 60        # Each second player will be awarded with credits for activity. Put 0 to disabled it. 
+CreditsPerInterval = 0       # How many credits player gets per activity interval. Put 0 to disable it.
+CreditsPerKill = 0           # How many credits player gets from a kill. Put 0 to disable it.
+CreditsPerRoundWin = 0       # How many credits player gets after winning a round. Put 0 to disable it.
+ShowCreditsOnRoundEnd = true # true = all credits message will be in only one message on round end.
+IgnoreWarmup = true          # Give credits during warmup? true to not or false to do.
 
 [Multiplier]
-CreditsPerInterval = { "@css/vip" = 2, "@css/root" = 4 }        # credits per interval multiplier for these flags.
+CreditsPerInterval = { "@css/vip" = 2, "@css/root" = 4 }        # credits multiplier for these flags.
 CreditsPerKill = { "@css/vip" = 2, "@css/root" = 4 }
 CreditsPerRoundWin = { "@css/vip" = 2, "@css/root" = 4 }
 

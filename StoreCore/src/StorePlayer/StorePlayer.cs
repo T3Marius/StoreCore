@@ -4,6 +4,7 @@ using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Timers;
 using Microsoft.Extensions.Logging;
 using static StoreCore.StoreCore;
+using static StoreCore.Lib;
 
 namespace StoreCore;
 
@@ -61,8 +62,12 @@ public static class StorePlayer
                         if (AdminManager.PlayerHasPermissions(player, flag))
                         {
                             STORE_API.AddClientCredits(player, baseCredits * multiplierValue);
-                            player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activity.reward", baseCredits * multiplierValue]);
+                            if (!Instance.Config.MainConfig.ShowCreditsOnRoundEnd)
+                            {
+                                player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activty.reward", baseCredits * multiplierValue]);
+                            }
                             multiplierApplied = true;
+                            AddToCreditsCount(player, baseCredits * multiplierValue);
                             break;
                         }
                     }
@@ -70,7 +75,11 @@ public static class StorePlayer
                     if (!multiplierApplied)
                     {
                         STORE_API.AddClientCredits(player, baseCredits);
-                        player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activity.reward", baseCredits]);
+                        if (!Instance.Config.MainConfig.ShowCreditsOnRoundEnd)
+                        {
+                            player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["activty.reward", baseCredits]);
+                        }
+                        AddToCreditsCount(player, baseCredits);
                     }
                 }
             }, TimerFlags.REPEAT);
