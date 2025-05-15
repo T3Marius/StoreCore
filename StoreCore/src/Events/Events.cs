@@ -3,6 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static StoreCore.StoreCore;
+using static StoreCore.Lib;
 
 namespace StoreCore;
 
@@ -44,8 +45,12 @@ public static class Events
                 if (AdminManager.PlayerHasPermissions(attacker, flag))
                 {
                     STORE_API.AddClientCredits(attacker, baseCredits * multiplierValue);
-                    attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", baseCredits * multiplierValue]);
+                    if (!Instance.Config.MainConfig.ShowCreditsOnRoundEnd)
+                    {
+                        attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", baseCredits * multiplierValue]);
+                    }
                     multiplierApplied = true;
+                    AddToCreditsCount(attacker, baseCredits * multiplierValue);
                     break;
                 }
             }
@@ -53,7 +58,11 @@ public static class Events
             if (!multiplierApplied)
             {
                 STORE_API.AddClientCredits(attacker, baseCredits);
-                attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", baseCredits]);
+                if (!Instance.Config.MainConfig.ShowCreditsOnRoundEnd)
+                {
+                    attacker.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["kill.reward", baseCredits]);
+                }
+                AddToCreditsCount(attacker, baseCredits);
             }
         }
         return HookResult.Continue;
@@ -81,8 +90,12 @@ public static class Events
                         if (AdminManager.PlayerHasPermissions(p, flag))
                         {
                             STORE_API.AddClientCredits(p, baseCredits * multiplierValue);
-                            p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["round.won", baseCredits * multiplierValue]);
+                            if (!Instance.Config.MainConfig.ShowCreditsOnRoundEnd)
+                            {
+                                p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["round.won", baseCredits * multiplierValue]);
+                            }
                             multiplierApplied = true;
+                            AddToCreditsCount(p, baseCredits * multiplierValue);
                             break;
                         }
                     }
@@ -90,9 +103,22 @@ public static class Events
                     if (!multiplierApplied)
                     {
                         STORE_API.AddClientCredits(p, baseCredits);
-                        p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["round.won", baseCredits]);
+                        if (!Instance.Config.MainConfig.ShowCreditsOnRoundEnd)
+                        {
+                            p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["round.won", baseCredits]);
+                        }
+                        AddToCreditsCount(p, baseCredits);
                     }
                 }
+            }
+        }
+        if (Instance.Config.MainConfig.ShowCreditsOnRoundEnd)
+        {
+            foreach (var p in Utilities.GetPlayers())
+            {
+                int roundCredits = GetCreditsCount(p);
+                p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["credits.round", roundCredits]);
+                ResetCreditsCount(p);
             }
         }
         return HookResult.Continue;

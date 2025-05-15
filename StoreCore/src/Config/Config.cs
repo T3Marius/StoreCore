@@ -27,6 +27,7 @@ public class Main_Config
     public int CreditsPerInterval { get; set; } = 10;
     public int CreditsPerKill { get; set; } = 5;
     public int CreditsPerRoundWin { get; set; } = 20;
+    public bool ShowCreditsOnRoundEnd { get; set; } = true;
     public bool IgnoreWarmup { get; set; } = true;
 }
 public class Credits_Multiplier

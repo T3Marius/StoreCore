@@ -3,8 +3,6 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Capabilities;
 using StoreAPI;
 using CounterStrikeSharp.API;
-using System.Reflection;
-using System.IO;
 using Microsoft.Extensions.Logging;
 
 namespace StoreCore;
@@ -13,10 +11,11 @@ public class StoreCore : BasePlugin, IPluginConfig<StoreConfig>
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] Core";
-    public override string ModuleVersion => "1.0.8";
+    public override string ModuleVersion => "1.0.9";
     public static StoreCore Instance { get; set; } = new StoreCore();
     public StoreConfig Config { get; set; } = new StoreConfig();
     public Dictionary<ulong, int> PlayerCredits { get; set; } = new Dictionary<ulong, int>();
+    public Dictionary<ulong, int> PlayerRoundCredits { get; set; } = new Dictionary<ulong, int>();
     public static StoreAPI STORE_API { get; set; } = new();
     private IT3MenuManager? MenuManager;
     private bool _isHotReload = false;

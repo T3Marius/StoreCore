@@ -133,4 +133,30 @@ public static class Lib
         players = targetResult.Players;
         return true;
     }
+    public static void AddToCreditsCount(CCSPlayerController player, int credits)
+    {
+        if (Instance.PlayerRoundCredits.ContainsKey(player.SteamID))
+        {
+            Instance.PlayerRoundCredits[player.SteamID] += credits;
+        }
+        else
+        {
+            Instance.PlayerRoundCredits[player.SteamID] = credits;
+        }
+    }
+    public static int GetCreditsCount(CCSPlayerController player)
+    {
+        ulong steamId = player.SteamID;
+
+        if (Instance.PlayerRoundCredits.TryGetValue(steamId, out int cachedCredits))
+        {
+            return cachedCredits;
+        }
+
+        return 0;
+    }
+    public static void ResetCreditsCount(CCSPlayerController player)
+    {
+        Instance.PlayerRoundCredits[player.SteamID] = 0;
+    }
 }
