@@ -24,10 +24,11 @@ namespace StoreCore_Roulette
         public override string ModuleName => "StoreCore Roulette";
         public override string ModuleVersion => "0.0.4";
         public override string ModuleAuthor => "varkit & thanks for the jinn";
-        public RouletteConfig Config { get; set; }
+
+        public RouletteConfig? Config { get; set; }
         public IStoreAPI? StoreApi { get; set; }
         public IT3MenuManager? MenuManager;
-        public string prefix { get; set; }
+        public string? prefix { get; set; }
         public Random random = new Random();
 
         public record Bet(CCSPlayerController player, Color color, int betamount);
@@ -35,9 +36,12 @@ namespace StoreCore_Roulette
 
         public override void OnAllPluginsLoaded(bool hotReload)
         {
-            Config = StoreApi.GetModuleConfig<RouletteConfig>("Roulette");
             StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
-            prefix = Config.Prefix.ReplaceColorTags();
+            Config = StoreApi.GetModuleConfig<RouletteConfig>("Roulette");
+            EnsureConfigLoaded();
+
+            prefix = Config!.Prefix.ReplaceColorTags();
+
             foreach (var item in Config.CommandsForRoulette)
             {
                 AddCommand(item, "", RouletteCommand);
@@ -55,9 +59,11 @@ namespace StoreCore_Roulette
 
         public void RouletteCommand(CCSPlayerController? caller, CommandInfo command)
         {
-            if (StoreApi == null) return;
-            if (!caller.IsValid || caller.IsBot || caller.IsHLTV) return;
+            if (StoreApi == null || Config == null) return;
+            if (caller == null || !caller.IsValid || caller.IsBot || caller.IsHLTV) return;
+
             var playercredit = GetPlayerCredit(caller);
+
             if (!int.TryParse(command.GetArg(1), out int betamount) || betamount < Config.MinimumBet || betamount > Config.MaximumBet)
             {
                 reply(caller, Localizer["Roulette_BetAmountError", Config.MinimumBet, Config.MaximumBet]);
@@ -70,7 +76,7 @@ namespace StoreCore_Roulette
                 return;
             }
 
-            if (GetPlayerCredit(caller) < betamount)
+            if (playercredit < betamount)
             {
                 reply(caller, Localizer["Roulette_NotEnoughMoney"]);
                 return;
@@ -82,15 +88,20 @@ namespace StoreCore_Roulette
         public void RouletteMenu(CCSPlayerController player, int betamount)
         {
             var manager = GetMenuManager();
+            if (manager == null || Config == null) return;
+
             var LocalizedTitle = Localizer["RouletteTitle"];
             var L_Red = Localizer["Red"];
             var L_Blue = Localizer["Blue"];
             var L_Green = Localizer["Green"];
 
-            if (manager == null)
-                return;
-
-            IT3Menu menu = manager.CreateMenu($"<img src='https://raw.githubusercontent.com/vulikit/varkit-resources/refs/heads/main/rulet1.gif'> <font color='#4bd932'>{LocalizedTitle}</font> <font color='#FFFFFF'>|</font> <font color='#3250d9'>{betamount}</font> <img src='https://raw.githubusercontent.com/vulikit/varkit-resources/refs/heads/main/rulet1.gif'>", isSubMenu: false);
+            IT3Menu menu = manager.CreateMenu(
+                $"<img src='https://raw.githubusercontent.com/vulikit/varkit-resources/refs/heads/main/rulet1.gif'> " +
+                $"<font color='#4bd932'>{LocalizedTitle}</font> <font color='#FFFFFF'>|</font> " +
+                $"<font color='#3250d9'>{betamount}</font> " +
+                $"<img src='https://raw.githubusercontent.com/vulikit/varkit-resources/refs/heads/main/rulet1.gif'>",
+                isSubMenu: false
+            );
 
             menu.AddOption($"<font color='red'>{L_Red}</font> <font color='#d9d632'>(x{Config.Red["multiplier"]})</font>", (p, i) =>
             {
@@ -113,16 +124,15 @@ namespace StoreCore_Roulette
         public void BetOnColor(Color color, CCSPlayerController player, int amount)
         {
             var manager = GetMenuManager();
-            if (manager == null)
-                return;
+            if (manager == null || Config == null || StoreApi == null) return;
+
             var L_Red = Localizer["Red"];
             var L_Blue = Localizer["Blue"];
             var L_Green = Localizer["Green"];
-            if (StoreApi == null) return;
 
             GivePlayerCredit(player, -amount); //removes credit
-
             ActiveBets.Add(new Bet(player, color, amount));
+
             string colorName = color == Color.Red ? "{red}" + $"{L_Red}" :
                               color == Color.Blue ? "{blue}" + $"{L_Blue}" :
                               "{green}" + $"{L_Green}";
@@ -156,15 +166,15 @@ namespace StoreCore_Roulette
         [GameEventHandler]
         public HookResult RoundEnd(EventRoundEnd @event, GameEventInfo info)
         {
-            if (ActiveBets.Count == 0) return HookResult.Continue;
+            if (ActiveBets.Count == 0 || Config == null) return HookResult.Continue;
 
             var L_Red = Localizer["Red"];
             var L_Blue = Localizer["Blue"];
             var L_Green = Localizer["Green"];
             Color winningColor = RoundEndWinner();
-            string colorName = winningColor == Color.Red ? "{red}" + $"{L_Red}" :
-                              winningColor == Color.Blue ? "{blue}" + $"{L_Blue}" :
-                              "{green}" + $"{L_Green}";
+            string colorName = winningColor == Color.Red ? "{Config.Red}" + $"{L_Red}" :
+                              winningColor == Color.Blue ? "{Config.blue}" + $"{L_Blue}" :
+                              "{Config.green}" + $"{L_Green}";
 
             Server.PrintToChatAll(prefix + Localizer["Roulette_Winner", colorName]);
             GiveCreditsToWinners(winningColor);
@@ -174,7 +184,8 @@ namespace StoreCore_Roulette
 
         private Color RoundEndWinner()
         {
-            int totalChance = Config.Red["chance"] + Config.Blue["chance"] + Config.Green["chance"];
+            EnsureConfigLoaded();
+            int totalChance = Config!.Red["chance"] + Config!.Blue["chance"] + Config!.Green["chance"];
             int roll = random.Next(1, totalChance + 1);
 
             if (roll <= Config.Red["chance"]) return Color.Red;
@@ -184,7 +195,7 @@ namespace StoreCore_Roulette
 
         private void GiveCreditsToWinners(Color color)
         {
-            if (StoreApi == null) return;
+            if (StoreApi == null || Config == null) return;
 
             int multiplier = color == Color.Red ? Config.Red["multiplier"] :
                             color == Color.Blue ? Config.Blue["multiplier"] :
@@ -197,6 +208,14 @@ namespace StoreCore_Roulette
                 int winnings = bet.betamount * multiplier;
                 GivePlayerCredit(bet.player, winnings);
                 reply(bet.player, Localizer["Roulette_YouWon", winnings]);
+            }
+        }
+
+        private void EnsureConfigLoaded()
+        {
+            if (Config == null)
+            {
+                throw new InvalidOperationException("Config was not loaded. Make sure StoreApi returned a valid config.");
             }
         }
     }
