@@ -5,14 +5,17 @@ using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
 using StoreAPI;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.IO;
 
 namespace StoreCore;
 
 public class MedicPlugin : BasePlugin
 {
     public override string ModuleAuthor => "GSM-RO";
-    public override string ModuleName => "[Store] Medic Plugin";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleName => "[StoreCore] Medic Plugin";
+    public override string ModuleVersion => "1.0.1";
     public IStoreAPI? StoreApi;
     public PluginConfig Config { get; set; } = new PluginConfig();
 
@@ -41,17 +44,26 @@ public class MedicPlugin : BasePlugin
 
         StoreApi.OnItemPreview += OnItemPreview;
     }
+    public override void Load(bool hotReload)
+    {
+        RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
+        RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
+        RegisterEventHandler<EventRoundStart>(OnRoundStart);
+        RegisterListener<Listeners.OnMapStart>(_ =>
+        {
+            Server.PrecacheModel("weapons/w_eq_charge");
+        });
+    }
 
     private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
-        CCSPlayerController? victim = @event.Userid;
-        CCSPlayerController? attacker = @event.Attacker;
+        var victim = @event.Userid;
+        var attacker = @event.Attacker;
 
         if (victim == null || attacker == null || victim == attacker)
             return HookResult.Continue;
 
-        CCSPlayerPawn? attackerPawn = attacker.PlayerPawn.Value;
-
+        var attackerPawn = attacker.PlayerPawn.Value;
         if (StoreApi == null || attackerPawn == null)
             return HookResult.Continue;
 
@@ -67,17 +79,6 @@ public class MedicPlugin : BasePlugin
         }
 
         return HookResult.Continue;
-    }
-
-    public override void Load(bool hotReload)
-    {
-        RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
-        RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
-        RegisterEventHandler<EventRoundStart>(OnRoundStart);
-        RegisterListener<Listeners.OnMapStart>(_ =>
-        {
-            Server.PrecacheModel("weapons/w_eq_charge");
-        });
     }
 
     [GameEventHandler(mode: HookMode.Post)]
@@ -96,10 +97,8 @@ public class MedicPlugin : BasePlugin
     private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
         _tries.Clear();
-
         foreach (var player in Utilities.GetPlayers())
             _tries.TryAdd(player.SteamID, Config.MaxUse);
-
         return HookResult.Continue;
     }
 
@@ -116,9 +115,9 @@ public class MedicPlugin : BasePlugin
             StoreApi.IsItemEquipped(activator.SteamID, item.Id, activator.TeamNum) &&
             item.Flags.Contains("silent", StringComparison.OrdinalIgnoreCase));
 
-        bool hasEquippedMedicItem = Config.MedicItems.Values.Any(item =>
-        StoreApi != null &&
-        StoreApi.IsItemEquipped(activator.SteamID, item.Id, activator.TeamNum));
+        var equippedItem = Config.MedicItems.Values.FirstOrDefault(item =>
+            StoreApi != null &&
+            StoreApi.IsItemEquipped(activator.SteamID, item.Id, activator.TeamNum));
 
         if (activator.TeamNum == (byte)CsTeam.Spectator)
         {
@@ -128,9 +127,9 @@ public class MedicPlugin : BasePlugin
             return;
         }
 
-        if (!hasEquippedMedicItem)
+        if (equippedItem == null)
         {
-            activator.PrintToChat($" {ChatColors.Green}[StoreMedic] {ChatColors.Default}You must equip a {ChatColors.Red}Medic item {ChatColors.Default}from the store to use this command.");
+            activator.PrintToChat($" {ChatColors.Green}[StoreMedic] {ChatColors.Default}You must equip a {ChatColors.Red}Medic item {ChatColors.Default}from the {ChatColors.Green}Store {ChatColors.Default}to use this command.");
             if (!isSilent && Config.HealFailureSound != "")
                 activator.ExecuteClientCommand($"play {Config.HealFailureSound}");
             return;
@@ -138,7 +137,7 @@ public class MedicPlugin : BasePlugin
 
         if (!activator.PawnIsAlive)
         {
-            activator.PrintToChat($" {ChatColors.Green}[StoreMedic] {ChatColors.Default}You should be alive to use this command.");
+            activator.PrintToChat($" {ChatColors.Green}[StoreMedic] {ChatColors.Default}You should be alive to use this command :)");
             if (!isSilent && Config.HealFailureSound != "")
                 activator.ExecuteClientCommand($"play {Config.HealFailureSound}");
             return;
@@ -146,6 +145,7 @@ public class MedicPlugin : BasePlugin
 
         if (Config.AccessFlag != "")
         {
+            if (!AdminManager.PlayerHasPermissions(activator, Config.AccessFlag))
             {
                 activator.PrintToChat($" {ChatColors.Green}[StoreMedic] {ChatColors.Default}You do not have access to use this command.");
                 if (!isSilent && Config.HealFailureSound != "")
@@ -162,48 +162,31 @@ public class MedicPlugin : BasePlugin
             return;
         }
 
-        if (activator.PlayerPawn.Value != null && activator.PlayerPawn.Value.Health > Config.MinHealth)
+        var pawn = activator.PlayerPawn.Value;
+        if (pawn == null || pawn.Health > Config.MinHealth || pawn.Health == pawn.MaxHealth)
         {
-            activator.PrintToChat($" {ChatColors.Green}[StoreMedic] {ChatColors.Default}Too much health to use medic. Need: {ChatColors.Red}{Config.MinHealth}hp or less");
-            if (!isSilent && Config.HealFailureSound != "")
-                activator.ExecuteClientCommand($"play {Config.HealFailureSound}");
-            return;
-        }
-
-        if (activator.PlayerPawn.Value != null && activator.PlayerPawn.Value.Health == activator.PlayerPawn.Value.MaxHealth)
-        {
-            activator.PrintToChat($" {ChatColors.Green}[StoreMedic] {ChatColors.Default}You are already at full health.");
+            activator.PrintToChat($" {ChatColors.Green}[StoreMedic] {ChatColors.Default}You cannot heal now. Health must be under {ChatColors.Red}{Config.MinHealth} HP.");
             if (!isSilent && Config.HealFailureSound != "")
                 activator.ExecuteClientCommand($"play {Config.HealFailureSound}");
             return;
         }
 
         activator.InGameMoneyServices!.Account -= Config.Cost;
-
-        var total = activator.PlayerPawn.Value != null && (activator.PlayerPawn.Value.MaxHealth >= activator.PlayerPawn.Value.Health + Config.HealHealth)
-            ? Config.HealHealth
-            : activator.PlayerPawn.Value!.MaxHealth - activator.PlayerPawn.Value.Health;
-
-        activator.PlayerPawn.Value.Health += total;
-        Utilities.SetStateChanged(activator.PlayerPawn.Value, "CBaseEntity", "m_iHealth");
-
+        int healing = Math.Min(equippedItem.HealingAmount, pawn.MaxHealth - pawn.Health);
+        pawn.Health += healing;
+        Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
         _tries[activator.SteamID]--;
 
         if (Config.ShowCall)
-            Server.PrintToChatAll($" {ChatColors.Green}[StoreMedic] {ChatColors.Default}Player {ChatColors.Green}{activator.PlayerName}{ChatColors.Default} used medic and restored {ChatColors.Red}{total}hp");
+            Server.PrintToChatAll($" {ChatColors.Green}[StoreMedic] {ChatColors.Default}Player {ChatColors.Green}{activator.PlayerName}{ChatColors.Default} used medic and restored {ChatColors.Red}{healing}hp");
 
         if (!isSilent && Config.HealSuccessSound != "")
             activator.ExecuteClientCommand($"play {Config.HealSuccessSound}");
     }
 
-    private bool HasAccess(CCSPlayerController player)
-    {
-        return AdminManager.PlayerHasPermissions(player, Config.AccessFlag);
-    }
-
     public void OnItemPreview(CCSPlayerController player, string uniqueId)
     {
-        CCSPlayerPawn? pawn = player.PlayerPawn.Value;
+        var pawn = player.PlayerPawn.Value;
         if (pawn == null)
             return;
 
@@ -223,70 +206,69 @@ public class MedicPlugin : BasePlugin
 public class PluginConfig
 {
     public string Category { get; set; } = "Medic Items";
-    public Dictionary<string, MedicItem> MedicItems { get; set; } = new Dictionary<string, MedicItem>()
+    public Dictionary<string, MedicItem> MedicItems { get; set; } = new()
     {
         {
             "1", new MedicItem
             {
                 Id = "medic_kit_50_3_days",
-                Name = "Medic (50 HP) 3 days",
+                Name = "Medic 50HP 3 days",
                 Price = 500,
                 Duration = 259200,
                 Type = "Healing",
-                HealingAmount = 50,
                 Description = "A basic healing kit to restore health.",
-                Flags = ""
+                Flags = "",
+                HealingAmount = 50
             }
         },
         {
             "2", new MedicItem
             {
                 Id = "medic_kit_50_no_limit",
-                Name = "Medic (50 HP) no limit",
+                Name = "Medic 50HP no limit",
                 Price = 5000,
                 Duration = 259200,
                 Type = "Healing",
-                HealingAmount = 50,
                 Description = "A basic healing kit to restore health.",
-                Flags = ""
+                Flags = "",
+                HealingAmount = 50
             }
         },
         {
             "3", new MedicItem
             {
                 Id = "medic_kit_60_3_days",
-                Name = "Medic (60 HP) 3 days",
+                Name = "Medic 60HP 3 days",
                 Price = 10000,
                 Duration = 259200,
                 Type = "Healing",
-                HealingAmount = 60,
                 Description = "A basic healing kit to restore health.",
-                Flags = ""
+                Flags = "",
+                HealingAmount = 60
             }
         },
         {
             "4", new MedicItem
             {
                 Id = "medic_kit_50_silent",
-                Name = "SilentMedic(50 HP)nolimit",
+                Name = "SilentMedic 50HP nolimit",
                 Price = 5000,
                 Duration = 0,
                 Type = "Healing",
-                HealingAmount = 50,
                 Description = "A quiet healing kit.",
-                Flags = "silent"
+                Flags = "silent",
+                HealingAmount = 50
             }
         }
     };
 
-    public int MinHealth { get; init; } = 100;
-    public int HealHealth { get; init; } = 50;
-    public int Cost { get; init; } = 0;
-    public bool ShowCall { get; init; } = true;
-    public int MaxUse { get; init; } = 1;
-    public string AccessFlag { get; init; } = "";
-    public string HealSuccessSound { get; init; } = "items/healthshot_success_01";
-    public string HealFailureSound { get; init; } = "buttons/blip2";
+    public int MinHealth { get; set; } = 100;
+    public int Cost { get; set; } = 0;
+    public bool ShowCall { get; set; } = true;
+    public int MaxUse { get; set; } = 1;
+    public string AccessFlag { get; set; } = "";
+    public string HealSuccessSound { get; set; } = "items/healthshot_success_01";
+    public string HealFailureSound { get; set; } = "buttons/blip2";
 }
 
 public class MedicItem
