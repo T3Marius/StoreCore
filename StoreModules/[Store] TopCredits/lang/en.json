@@ -1,0 +1,5 @@
+{
+    "topcredits<title>": "Top {0} Players",
+    "topcredits.model": "#{0} {1} | {2}$",
+    "no.data": "No data avalible found!"
+}
