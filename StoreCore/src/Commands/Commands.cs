@@ -66,7 +66,7 @@ public static class Commands
                 ScreenMenu.Display(player);
                 break;
             case "t3":
-                T3Menu.Display(player); 
+                T3Menu.Display(player);
                 break;
         }
 
@@ -143,7 +143,7 @@ public static class Commands
         int credits = STORE_API.GetClientCredits(player);
         info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["credits.shown", credits]);
     }
-    [CommandHelper(minArgs:2, usage: "<playername> <credits>")]
+    [CommandHelper(minArgs: 2, usage: "<playername> <credits>")]
     public static void Command_GiftCredits(CCSPlayerController? player, CommandInfo info)
     {
         if (player == null || player.IsBot || player.IsHLTV)
@@ -188,9 +188,6 @@ public static class Commands
     [CommandHelper(minArgs: 2, usage: "<playername> | @all <credits>")]
     public static void Command_AddCredits(CCSPlayerController? player, CommandInfo info)
     {
-        if (player == null || player.IsBot || player.IsHLTV)
-            return;
-
         if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
             !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
@@ -218,7 +215,7 @@ public static class Commands
         {
             STORE_API.AddClientCredits(targetPlayer, credits);
         }
-        
+
         if (targetPlayers.Count == 1)
         {
             Server.PrintToChatAll(Instance.Localizer["prefix"] + Instance.Localizer["credits.added", adminName, credits, targetName]);
@@ -231,9 +228,6 @@ public static class Commands
     [CommandHelper(minArgs: 2, usage: "<playername> | @all <credits>")]
     public static void Command_RemoveCredits(CCSPlayerController? player, CommandInfo info)
     {
-        if (player == null)
-            return;
-
         if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
             !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
@@ -273,9 +267,6 @@ public static class Commands
     [CommandHelper(minArgs: 2, usage: "<playername> | @all <credits>")]
     public static void Command_SetCredits(CCSPlayerController? player, CommandInfo info)
     {
-        if (player == null || player.IsBot || player.IsHLTV)
-            return;
-
         if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
             !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
