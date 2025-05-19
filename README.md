@@ -42,6 +42,10 @@
 
 - [Medic] | Made by @GSM-RO | Standard Medic Module.
 
+- [TopCredits] | See Top Credits with !topcredits. Editable in config.
+
+- [PlayerColor] | Allows players to buy different colors red/rainbow/etc.
+
 - All modules will have a default config automaticly created when added, so no worry about how to use them!.
 
 # Menu Requirements
