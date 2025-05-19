@@ -486,7 +486,6 @@ public static class Item
     {
         return _categories.Keys.ToList();
     }
-
     public static List<Store.Store_Item> GetCategoryItems(string category)
     {
         if (!_categories.ContainsKey(category))
