@@ -12,7 +12,11 @@
 
 - I don't plan on giving up on this project anytime soon, so there will be updates weekly on this. Maybe even sooner.
 
-# Avalible Modules
+# Premium Modules | In order to buy them DM me on discord: mariust3
+
+- [Pets] - 20$ | Add as many pets as you want, player can preview them. Of course you need to have your own pets models.
+
+# Free Modules
 
 - [PlayerModels] | Allows you to add how many models you want from the module config.
 
