@@ -1,0 +1,13 @@
+{
+    "prefix": "{gold}[StoreCase]{silver} ",
+    "case<menu>": "Opening {0}",
+    "case.opened": "You got {red}{0}{silver} from {purple}{1}{silver} case.",
+    "case.opened.all": "Player {blue}{0}{silver} opened {purple}{1}{silver} case and got {red}{2}",
+    "case.loading": "Loading...",
+    "case.opening": ">>> {0} <<<",
+    "case.opening.finished": "★ {0} ★",
+    "case.content": "#{0}. {gold}{1}{silver} - [{red}{2}%{silver}] Chance",
+    "case.content.title": "{0} - Content",
+    "phrase.line.1": "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+    "phrase.line.2": "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+}
