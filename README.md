@@ -16,7 +16,7 @@
 
 - [PlayerModels] | Allows you to add how many models you want from the module config.
 
-- [Abilities] | Speed/Gravity/God Mode. You can add more of them with each one having a different Duration, etc.
+- [Abilities] | Speed/Gravity/God Mode/No Clip. You can add more of them with each one having a different Duration, etc.
 
 - [Flags] | Players can buy custom flags from the store with duration. For example you could add vip flag, premium flag, acces flag.
 
@@ -45,6 +45,8 @@
 - [TopCredits] | See Top Credits with !topcredits. Editable in config.
 
 - [PlayerColor] | Allows players to buy different colors red/rainbow/etc.
+
+- [Cases] | Create cases with custom items from config.
 
 - All modules will have a default config automaticly created when added, so no worry about how to use them!.
 
