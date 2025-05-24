@@ -5,6 +5,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
 using Microsoft.Extensions.Logging;
+using CounterStrikeSharp.API.Modules.Memory;
 
 namespace StoreCore;
 
@@ -18,6 +19,7 @@ public class Abilities : BasePlugin
     public Timer? SpeedTimer;
     public Timer? GravityTimer;
     public Timer? GodTimer;
+    public Timer? NoClipTimer;
 
     public PluginConfig Config { get; set; } = new PluginConfig();
     public override void OnAllPluginsLoaded(bool hotReload)
@@ -71,9 +73,41 @@ public class Abilities : BasePlugin
                 isEquipable: false
                 );
         }
+        foreach (var kvp in Config.NoClips)
+        {
+            var noclip = kvp.Value;
+
+            StoreApi.RegisterItem(
+                noclip.Id,
+                noclip.Name,
+                Config.Category,
+                noclip.Type,
+                noclip.Price,
+                noclip.Description,
+                noclip.Flags,
+                isEquipable: false
+                );
+        }
+
 
         StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
 
+        RegisterEventHandler<EventRoundStart>(OnRoundStart);
+
+    }
+    public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
+    {
+        NoClipTimer?.Kill();
+        GodTimer?.Kill();
+        GravityTimer?.Kill();
+        SpeedTimer?.Kill();
+
+        NoClipTimer = null;
+        GodTimer = null;
+        GravityTimer = null;
+        SpeedTimer = null;
+
+        return HookResult.Continue;
     }
     public void OnPlayerPurchaseItem(CCSPlayerController player, Dictionary<string, string> item)
     {
@@ -145,13 +179,38 @@ public class Abilities : BasePlugin
                 }
             }
         }
+        foreach (var kvp in Config.NoClips)
+        {
+            var noclip = kvp.Value;
+
+            if (item["uniqueid"] == noclip.Id)
+            {
+                ChangeMovetype(pawn, MoveType_t.MOVETYPE_NOCLIP);
+
+                if (noclip.Timer > 0)
+                {
+                    NoClipTimer = AddTimer(noclip.Timer, () =>
+                    {
+                        ChangeMovetype(pawn, MoveType_t.MOVETYPE_WALK);
+                        NoClipTimer?.Kill();
+                        GodTimer = null;
+                    });
+                }
+            }
+        }
+    }
+    private void ChangeMovetype(CBasePlayerPawn pawn, MoveType_t movetype)
+    {
+        pawn.MoveType = movetype;
+        Schema.SetSchemaValue(pawn.Handle, "CBaseEntity", "m_nActualMoveType", movetype);
+        Utilities.SetStateChanged(pawn, "CBaseEntity", "m_MoveType");
     }
 
 }
 public class PluginConfig
 {
     public string Category { get; set; } = "Abilites";
-    public Dictionary<string, Speed_Item> Speeds { get; set; } = new Dictionary<string, Speed_Item>()
+    public Dictionary<string, Speed_Item> Speeds { get; set; } = new Dictionary<string, Speed_Item>
     {
         {
             "1", new Speed_Item
@@ -196,6 +255,21 @@ public class PluginConfig
             }
         }
     };
+    public Dictionary<string, NoClip_Item> NoClips { get; set; } = new Dictionary<string, NoClip_Item>
+    {
+        {
+            "1", new NoClip_Item
+            {
+                Id = "noclip_10_seconds",
+                Name = "NoClip (10 sec)",
+                Timer = 10.0f,
+                Description = "Gives you no clip for 10 seconds",
+                Flags = "",
+                Type ="abilities",
+                Price = 2000
+            }
+        }
+    };
 }
 public class Speed_Item
 {
@@ -213,6 +287,16 @@ public class Gravity_Item
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public float Gravity { get; set; } = 0;
+    public float Timer { get; set; } = 0;
+    public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public int Price { get; set; } = 0;
+}
+public class NoClip_Item
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
     public float Timer { get; set; } = 0;
     public string Description { get; set; } = string.Empty;
     public string Flags { get; set; } = string.Empty;
