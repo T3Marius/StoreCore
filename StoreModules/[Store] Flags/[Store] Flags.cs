@@ -75,6 +75,8 @@ public class Flags : BasePlugin
     {
         CCSPlayerController? player = @event.Userid;
 
+
+
         if (player == null || StoreApi == null)
             return HookResult.Continue;
 
