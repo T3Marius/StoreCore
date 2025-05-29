@@ -1,0 +1,63 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on version tags like v1.0.0, v2.1.3, etc.
+    branches:
+      - main  # Also triggers on pushes to main branch
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build project
+      run: dotnet build --configuration Release --no-restore
+      
+    - name: Create StoreCore directory structure
+      run: |
+        mkdir -p release-staging/StoreCore
+        
+    - name: Copy build output to staging
+      run: |
+        cp -r BuildOutput/plugins/StoreCore/* release-staging/StoreCore/
+        
+    - name: Create StoreCore.zip
+      run: |
+        cd release-staging
+        zip -r StoreCore.zip StoreCore/
+        
+    - name: Get version from tag
+      if: startsWith(github.ref, 'refs/tags/')
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      
+    - name: Get commit hash for non-tag builds
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      id: get_hash
+      run: echo "HASH=${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
+      
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION || format('build-{0}', steps.get_hash.outputs.HASH) }}
+        name: ${{ steps.get_version.outputs.VERSION || format('Build {0}', steps.get_hash.outputs.HASH) }}
+        files: release-staging/StoreCore.zip
+        generate_release_notes: true
+        draft: false
+        prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
