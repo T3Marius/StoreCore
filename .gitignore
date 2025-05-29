@@ -6,12 +6,3 @@ BuildOutput/
 *.sln
 StoreCore/Dapper.dll
 StoreCore/MySqlConnector.dll
-StoreModules/\[Store\] Abilities/StoreAPI.dll
-StoreModules/\[Store\] Flags/StoreAPI.dll
-StoreModules/\[Store\] Hit-Sounds/StoreAPI.dll
-StoreModules/\[Store\] Killscreen/StoreAPI.dll
-StoreModules/\[Store\] PlayerModels/StoreAPI.dll
-StoreModules/\[Store\] SmokeColor/StoreAPI.dll
-StoreModules/\[Store\] SpawnEffects/StoreAPI.dll
-StoreModules/\[Store\] Pets/\[Store\] Pets.cs
-StoreModules/\[Store\] Pets/\[Store\] Pets.csproj
