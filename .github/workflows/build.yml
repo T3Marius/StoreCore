@@ -1,0 +1,76 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v1.0.0, v2.1.3, etc.
+      - '*.*.*'   # Also triggers on tags like 1.0.0 without 'v' prefix
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Get tag name
+      id: tag
+      run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      
+    - name: Create StoreCore.zip from BuildOutput
+      run: |
+        if [ -d "BuildOutput" ]; then
+          cd BuildOutput
+          zip -r ../StoreCore.zip .
+          cd ..
+        else
+          echo "BuildOutput directory not found"
+          exit 1
+        fi
+        
+    - name: Create StoreModules.zip
+      run: |
+        if [ -d "StoreModules" ]; then
+          cd StoreModules
+          zip -r ../StoreModules.zip .
+          cd ..
+        else
+          echo "StoreModules directory not found"
+          exit 1
+        fi
+        
+    - name: Verify zip files
+      run: |
+        ls -la *.zip
+        echo "StoreCore.zip contents:"
+        unzip -l StoreCore.zip | head -20
+        echo "StoreModules.zip contents:"
+        unzip -l StoreModules.zip | head -20
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.tag.outputs.tag }}
+        name: Release ${{ steps.tag.outputs.tag }}
+        body: |
+          ## Release ${{ steps.tag.outputs.tag }}
+          
+          This release contains:
+          - **StoreCore.zip**: Core application files from BuildOutput
+          - **StoreModules.zip**: Store modules and extensions
+          
+          ### Installation
+          1. Download both zip files
+          2. Extract StoreCore.zip to your application directory
+          3. Extract StoreModules.zip to your modules directory
+          
+          ### Changes
+          - Auto-generated release from tag ${{ steps.tag.outputs.tag }}
+        files: |
+          StoreCore.zip
+          StoreModules.zip
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
