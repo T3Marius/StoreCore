@@ -306,7 +306,7 @@ public static class T3Menu
 
             foreach (var category in categories)
             {
-                var playerItems = Item.GetPlayerItems(player.SteamID, category);
+                var playerItems = Item.GetPlayerItems(player.SteamID, category).Where(i => i.IsEquipable || i.IsSellable).ToList();
 
                 if (playerItems.Count > 0)
                 {
