@@ -7,6 +7,7 @@
     "case.opening": ">>> {0} <<<",
     "case.opening.finished": "★ {0} ★",
     "case.content": "#{0}. {gold}{1}{silver} - [{red}{2}%{silver}] Chance",
+    "case.already.opening": "Please wait for this case to open in order to get another one!",
     "case.content.title": "{0} - Content",
     "phrase.line.1": "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
     "phrase.line.2": "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
