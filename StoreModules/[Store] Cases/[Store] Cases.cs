@@ -69,8 +69,6 @@ public class Cases : BasePlugin
 
     private void OnServerPrecacheResourcesHandler(ResourceManifest manifest)
     {
-        if (Config?.Cases == null) return;
-
         foreach (var storeCase in Config.Cases)
         {
             foreach (var item in storeCase.Items)
