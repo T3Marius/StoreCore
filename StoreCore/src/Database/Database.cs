@@ -731,7 +731,6 @@ public static class Database
             return false;
         }
     }
-
     public static async Task<bool> IsItemEquippedAsync(ulong steamId, string uniqueId, int? team = null)
     {
         try
@@ -758,6 +757,76 @@ public static class Database
         catch (Exception ex)
         {
             Instance.Logger.LogError($"Failed to check if item is equipped: {ex.Message}");
+            return false;
+        }
+    }
+    private static async Task<bool> IsPlayerVipAsync(ulong steamId)
+    {
+        if (!IsInitialized)
+            return false;
+
+        try
+        {
+            using MySqlConnection connection = await ConnectAsync();
+
+            var player = await connection.QueryFirstOrDefaultAsync<Store_Player>(
+                "SELECT Vip FROM store_players where SteamID = @SteamID",
+                new { SteamID = steamId }
+            );
+
+            return player?.Vip ?? false;
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError("Failed to check if player is VIP (SteamID: {0} - {1})", steamId, ex.Message);
+            return false;
+        }
+    }
+    private static async Task<bool> SetPlayerVipAsync(ulong steamId, bool isVip)
+    {
+        if (!IsInitialized)
+            return false;
+
+        try
+        {
+            using MySqlConnection connection = await ConnectAsync();
+            int rowsAffected = await connection.ExecuteAsync(
+                "UPDATE store_players SET Vip = @Vip WHERE SteamID = @SteamID",
+                new { SteamID = steamId, Vip = isVip }
+            );
+
+            if (rowsAffected > 0)
+                return true;
+            else
+                return false;
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError("Failed to set player VIP (SteamID: {0} - {1})", steamId, ex.Message);
+            return false;
+        }
+    }
+    public static bool IsPlayerVip(ulong steamId)
+    {
+        try
+        {
+            return IsPlayerVipAsync(steamId).GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError("Failed to check if player is vip (SteamID: {0} ex.Message: {1})", steamId, ex.Message);
+            return false;
+        }
+    }
+    public static bool SetPlayerVip(ulong steamId, bool isVip)
+    {
+        try
+        {
+            return SetPlayerVipAsync(steamId, isVip).GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError("Failed to set player VIP status synchronously (SteamID: {0}): {1}", steamId, ex.Message);
             return false;
         }
     }

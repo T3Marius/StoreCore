@@ -12,6 +12,10 @@
     "functionsmenu<title>": "Store Functions",
     "confirm.sell<title>": "Sell [{0}] ?",
     "items<title>": "Items - {0}",
+    "addvip<option>": "Add Vip",
+    "removevip<option>": "Remove Vip",
+    "addvip<title>": "Select A Player",
+    "removevip<title>": "Select A Player",
     "buy<option>": "Buy Items",
     "inventory<option>": "Open Inventory",
     "item.equip<option>": "Equip Settings",
@@ -84,5 +88,9 @@
     "item.permanent": "Duration: Permanent",
     "item.expires.in": "Expires in: {0}",
     "item.preview": "Preview",
-    "item.expired": "EXPIRED"
+    "item.expired": "EXPIRED",
+    "player.aleardy.vip": "{red}{0}{silver} is aleardy vip.",
+    "player.not.vip": "{red}{0}{silver} is not a vip!",
+    "vip.added": "Succesfully set {red}{0}{silver} vip status!",
+    "vip.removed": "Succesfully removed vip status from {red}{0}{silver}."
 }

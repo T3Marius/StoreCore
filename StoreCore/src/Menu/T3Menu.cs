@@ -43,17 +43,95 @@ public static class T3Menu
         IT3Menu menu = manager.CreateMenu(Instance.Localizer.ForPlayer(player, "functionsmenu<title>"), isSubMenu: true);
         menu.ParentMenu = prevMenu;
 
-        if (AdminManager.PlayerHasPermissions(player, "@css/root"))
+        bool hasAddCreditsAcces = Instance.Config.Permissions.AddCredits.Count > 0 &&
+        Instance.Config.Permissions.AddCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag));
+
+        bool hasSetVipAcces = Instance.Config.Permissions.AddVip.Count > 0 &&
+        Instance.Config.Permissions.AddVip.Any(flag => AdminManager.PlayerHasPermissions(player, flag));
+
+        bool hasRemoveVipAcces = Instance.Config.Permissions.RemoveVip.Count > 0 &&
+        Instance.Config.Permissions.RemoveVip.Any(flag => AdminManager.PlayerHasPermissions(player, flag));
+
+        if (hasAddCreditsAcces)
         {
             menu.AddOption(Instance.Localizer.ForPlayer(player, "givecredits<option>"), (p, o) =>
             {
                 DisplayGiveCreditsMenu(p, menu);
             });
         }
+
+        if (hasSetVipAcces)
+        {
+            menu.AddOption(Instance.Localizer.ForPlayer(player, "addvip<option>"), (p, o) =>
+            {
+                DisplayAddVipMenu(p, menu);
+            });
+        }
+
+        if (hasRemoveVipAcces)
+        {
+            menu.AddOption(Instance.Localizer.ForPlayer(player, "removevip<option>"), (p, o) =>
+            {
+                DisplayRemoveVipMenu(p, menu);
+            });
+        }
+
         menu.AddOption(Instance.Localizer.ForPlayer(player, "giftcredits<option>"), (p, o) =>
         {
             DisplayGiftCreditsMenu(p, menu);
         });
+        manager.OpenSubMenu(player, menu);
+    }
+    private static void DisplayRemoveVipMenu(CCSPlayerController player, IT3Menu prevMenu)
+    {
+        if (player == null)
+            return;
+
+        var manager = Instance.GetMenuManager() ?? throw new Exception("T3Menu not found");
+        IT3Menu menu = manager.CreateMenu(Instance.Localizer.ForPlayer(player, "removevip<title>"), isSubMenu: true);
+
+        menu.ParentMenu = prevMenu;
+
+        foreach (var client in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV && p != player))
+        {
+            menu.AddOption(client.PlayerName, (p, o) =>
+            {
+                if (!STORE_API.IsPlayerVip(client.SteamID))
+                {
+                    player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["player.not.vip", client.PlayerName]);
+                    return;
+                }
+
+                STORE_API.SetPlayerVip(client.SteamID, false);
+                player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["vip.removed", client.PlayerName]);
+            });
+        }
+        manager.OpenSubMenu(player, menu);
+    }
+    private static void DisplayAddVipMenu(CCSPlayerController player, IT3Menu prevMenu)
+    {
+        if (player == null)
+            return;
+
+        var manager = Instance.GetMenuManager() ?? throw new Exception("T3Menu not found");
+        IT3Menu menu = manager.CreateMenu(Instance.Localizer.ForPlayer(player, "addvip<title>"), isSubMenu: true);
+
+        menu.ParentMenu = prevMenu;
+
+        foreach (var client in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV && p != player))
+        {
+            menu.AddOption(client.PlayerName, (p, o) =>
+            {
+                if (STORE_API.IsPlayerVip(client.SteamID))
+                {
+                    player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["player.aleardy.vip", client.PlayerName]);
+                    return;
+                }
+
+                STORE_API.SetPlayerVip(client.SteamID, true);
+                player.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["vip.added", client.PlayerName]);
+            });
+        }
         manager.OpenSubMenu(player, menu);
     }
     private static void DisplayGiftCreditsMenu(CCSPlayerController player, IT3Menu prevMenu)
@@ -192,7 +270,7 @@ public static class T3Menu
                     .Select(f => f.Trim())
                     .ToList();
 
-                bool hasEnoughCredits = playerCredits >= item.Price;
+                bool hasEnoughCredits = playerCredits >= item.Price || STORE_API.IsPlayerVip(player.SteamID);
                 bool canBuy = item.IsBuyable && hasEnoughCredits;
 
                 if (item.IsEquipable)
@@ -212,7 +290,8 @@ public static class T3Menu
                     itemDisplay += " " + Instance.Localizer.ForPlayer(player, "item.cannot.afford");
                 }
 
-                bool hasAccess = flagsList.Count == 0 || flagsList.Any(flag => AdminManager.PlayerHasPermissions(player, flag));
+                bool hasAccess = flagsList.Count == 0 || flagsList.Any(flag => AdminManager.PlayerHasPermissions(player, flag))
+                || STORE_API.IsPlayerVip(player.SteamID);
 
                 if (!hasAccess)
                 {
@@ -267,7 +346,8 @@ public static class T3Menu
         });
         menu.AddOption(Instance.Localizer.ForPlayer(player, "confirm.yes", item.Price), (p, o) =>
         {
-            bool purchased = Item.PurchaseItem(p, uniqueId);
+            bool isVip = STORE_API.IsPlayerVip(p.SteamID);
+            bool purchased = Item.PurchaseItem(p, uniqueId, isVip);
             if (purchased)
             {
                 p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["item.bought", item.Name, item.Price]);
@@ -496,7 +576,8 @@ public static class T3Menu
 
         menu.AddOption(Instance.Localizer.ForPlayer(player, "confirm.yes.sell"), (p, o) =>
         {
-            bool sold = Item.SellItem(p, item.UniqueId);
+            bool isVip = STORE_API.IsPlayerVip(p.SteamID);
+            bool sold = Item.SellItem(p, item.UniqueId, isVip);
             if (sold)
             {
                 p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["item.sold", item.Name, refundAmount]);

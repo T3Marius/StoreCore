@@ -75,14 +75,14 @@ Pass = ""
 Port = 3306
 
 [MainConfig]
-MenuType = "t3"              # there are only 2 menus, screen or t3.
-StartCredits = 0             # How much credits a new player will have at start. 
-PlaytimeInterval = 60        # Each second player will be awarded with credits for activity. Put 0 to disabled it. 
-CreditsPerInterval = 0       # How many credits player gets per activity interval. Put 0 to disable it.
-CreditsPerKill = 0           # How many credits player gets from a kill. Put 0 to disable it.
-CreditsPerRoundWin = 0       # How many credits player gets after winning a round. Put 0 to disable it.
-ShowCreditsOnRoundEnd = true # true = all credits message will be in only one message on round end.
-IgnoreWarmup = true          # Give credits during warmup? true to not or false to do.
+MenuType = "screen"           # there are only 2 menus, screen or t3.
+StartCredits = 0          # How much credits a new player will have at start. 
+PlaytimeInterval = 30     # Each second player will be awarded with credits for activity. Put 0 to disabled it. 
+CreditsPerInterval = 10    # How many credits player gets per activity interval. Put 0 to disable it.
+CreditsPerKill = 10        # How many credits player gets from a kill. Put 0 to disable it.
+CreditsPerRoundWin = 10    # How many credits player gets after winning a round. Put 0 to disable it.
+ShowCreditsOnRoundEnd = true    # If this is enabled, the credits award messages will be in one message at the end of the round.
+IgnoreWarmup = true       # Give credits during warmup? true to not or false to do.
 
 [Multiplier]
 CreditsPerInterval = { "@css/vip" = 2, "@css/root" = 4 }        # credits multiplier for these flags.
@@ -97,8 +97,10 @@ ShowCredits = ["credits", "mycredits"]           # commands to show your current
 AddCredits = ["addcredits", "givecredits"]       # commands to give credits, as an admin.
 SetCredits = ["setcredits"]                      # command to set credits, as an admin.
 RemoveCredits = ["removecredits"]                # command to remove an amount of credits from a player.
-GiftCredits = ["giftcredits", "gift"]            # commands to gift someone credits (for normal players)
-ResetCredits = ["rc", "resetcredits"]            # commands to reset all players credits
+GiftCredits = ["giftcredits", "gift"]            # commands to gift someone credits (for normal players).
+ResetCredits = ["rc", "resetcredits"]            # commands to reset all players credits.
+AddVip = ["addvip", "addstorevip"]               # commands to add a store vip.
+RemoveVip = ["removevip", "removestorevip"]      # commands to remove a store vip.
 
 [Permissions]		# set permission foreach command.
 StoreCommand = []
@@ -107,6 +109,8 @@ AddCredits = ["@css/root"]
 RemoveCredits = ["@css/root"]
 SetCredits = ["@css/root"]
 ResetCredits = ["@css/root"]
+AddVip = ["@css/root"]
+RemoveVip = ["@css/root"]
 ```
 
 # Module Example

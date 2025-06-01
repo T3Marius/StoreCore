@@ -11,7 +11,7 @@ public class StoreCore : BasePlugin, IPluginConfig<StoreConfig>
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] Core";
-    public override string ModuleVersion => "1.1.1";
+    public override string ModuleVersion => "1.1.2";
     public static StoreCore Instance { get; set; } = new StoreCore();
     public StoreConfig Config { get; set; } = new StoreConfig();
     public Dictionary<ulong, int> PlayerCredits { get; set; } = new Dictionary<ulong, int>();
@@ -26,12 +26,10 @@ public class StoreCore : BasePlugin, IPluginConfig<StoreConfig>
             MenuManager = new PluginCapability<IT3MenuManager>("t3menu:manager").Get() ?? throw new Exception("Couldn't find t3menuapi");
         return MenuManager;
     }
-
     public void OnConfigParsed(StoreConfig config)
     {
         Config = config;
     }
-
     public override void Load(bool hotReload)
     {
         Instance = this;
@@ -44,7 +42,6 @@ public class StoreCore : BasePlugin, IPluginConfig<StoreConfig>
         Database.Initialize();
         InitializeStore(hotReload);
     }
-
     private void InitializeStore(bool hotReload)
     {
         try
@@ -72,7 +69,6 @@ public class StoreCore : BasePlugin, IPluginConfig<StoreConfig>
             Logger.LogError($"Error initializing plugin components: {ex.Message}");
         }
     }
-
     public override void OnAllPluginsLoaded(bool hotReload)
     {
         if (hotReload)

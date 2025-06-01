@@ -91,6 +91,16 @@ namespace StoreAPI
         public bool IsItemEquipped(ulong steamId, string uniqueId, int? team = null);
 
         /// <summary>
+        /// Set player vip.
+        /// </summary>
+        public bool SetPlayerVip(ulong steamId, bool isVip);
+
+        /// <summary>
+        /// Check if player is vip.
+        /// </summary>
+        public bool IsPlayerVip(ulong steamId);
+
+        /// <summary>
         /// Get all player items.
         /// </summary>
         public List<StoreAPI.Store.Store_Item> GetPlayerItems(ulong steamId, string? category = null);

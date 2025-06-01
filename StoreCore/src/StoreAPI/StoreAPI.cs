@@ -87,6 +87,14 @@ public class StoreAPI : IStoreAPI
     {
         return Item.IsItemEquipped(steamId, uniqueId, team);
     }
+    public bool SetPlayerVip(ulong steamId, bool isVip)
+    {
+        return Database.SetPlayerVip(steamId, isVip);
+    }
+    public bool IsPlayerVip(ulong steamId)
+    {
+        return Database.IsPlayerVip(steamId);
+    }
     public List<Store_Item> GetPlayerItems(ulong steamId, string? category = null)
     {
         return Item.GetPlayerItems(steamId, category);

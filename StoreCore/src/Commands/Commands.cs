@@ -7,7 +7,6 @@ using CounterStrikeSharp.API;
 using CS2ScreenMenuAPI;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Extensions;
-using Microsoft.Extensions.Logging;
 
 namespace StoreCore;
 
@@ -50,6 +49,78 @@ public static class Commands
         {
             AddCmd($"css_{cmd}", "Opens the inventory", Command_Inventory);
         }
+        foreach (var cmd in Commands.AddVip)
+        {
+            AddCmd($"css_{cmd}", "Gives vip to a player", Command_AddVip);
+        }
+        foreach (var cmd in Commands.RemoveVip)
+        {
+            AddCmd($"css_{cmd}", "Removes vip from a player", Command_RemoveVip);
+        }
+    }
+    [CommandHelper(minArgs: 1, usage: "<playername>")]
+    public static void Command_AddVip(CCSPlayerController? player, CommandInfo info)
+    {
+        if (Instance.Config.Permissions.AddVip.Count > 0 &&
+        !Instance.Config.Permissions.AddVip.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
+        {
+            info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
+            return;
+        }
+
+        Instance.Config.Reload();
+
+        string targetString = info.GetArg(1);
+
+        if (!ProcessTargetString(player, info, targetString, false, false, out List<CCSPlayerController> targetPlayers, out string senderName, out string targetName))
+            return;
+
+        var targetPlayer = targetPlayers.FirstOrDefault();
+
+        if (targetPlayer == null)
+            return;
+
+
+        if (STORE_API.IsPlayerVip(targetPlayer.SteamID))
+        {
+            info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["player.aleardy.vip", targetPlayer.PlayerName]);
+            return;
+        }
+
+        STORE_API.SetPlayerVip(targetPlayer.SteamID, true);
+        info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["vip.added", targetPlayer.PlayerName]);
+    }
+    [CommandHelper(minArgs: 1, usage: "<playername>")]
+    public static void Command_RemoveVip(CCSPlayerController? player, CommandInfo info)
+    {
+        if (Instance.Config.Permissions.RemoveVip.Count > 0 &&
+        !Instance.Config.Permissions.RemoveVip.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
+        {
+            info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
+            return;
+        }
+
+        Instance.Config.Reload();
+
+        string targetString = info.GetArg(1);
+
+        if (!ProcessTargetString(player, info, targetString, false, false, out List<CCSPlayerController> targetPlayers, out string senderName, out string targetName))
+            return;
+
+        var targetPlayer = targetPlayers.FirstOrDefault();
+
+        if (targetPlayer == null)
+            return;
+
+
+        if (!STORE_API.IsPlayerVip(targetPlayer.SteamID))
+        {
+            info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["player.not.vip", targetPlayer.PlayerName]);
+            return;
+        }
+
+        STORE_API.SetPlayerVip(targetPlayer.SteamID, false);
+        info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["vip.removed", targetPlayer.PlayerName]);
     }
     public static void Command_Inventory(CCSPlayerController? player, CommandInfo info)
     {
@@ -62,6 +133,8 @@ public static class Commands
             info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
             return;
         }
+
+        Instance.Config.Reload();
 
         switch (Instance.Config.MainConfig.MenuType)
         {
@@ -107,11 +180,13 @@ public static class Commands
             return;
 
         if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
-            !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
+        !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
             info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
             return;
         }
+
+        Instance.Config.Reload();
 
         switch (Instance.Config.MainConfig.MenuType)
         {
@@ -169,6 +244,8 @@ public static class Commands
         if (player == null || !player.IsValid)
             return;
 
+        Instance.Config.Reload();
+
         int credits = STORE_API.GetClientCredits(player);
         info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["credits.shown", credits]);
     }
@@ -177,6 +254,8 @@ public static class Commands
     {
         if (player == null || player.IsBot || player.IsHLTV)
             return;
+
+        Instance.Config.Reload();
 
         string targetString = info.GetArg(1);
         if (!int.TryParse(info.GetArg(2), out int credits))
@@ -218,11 +297,13 @@ public static class Commands
     public static void Command_AddCredits(CCSPlayerController? player, CommandInfo info)
     {
         if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
-            !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
+        !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
             info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
             return;
         }
+
+        Instance.Config.Reload();
 
         string targetString = info.GetArg(1);
         if (!int.TryParse(info.GetArg(2), out int credits))
@@ -258,11 +339,13 @@ public static class Commands
     public static void Command_RemoveCredits(CCSPlayerController? player, CommandInfo info)
     {
         if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
-            !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
+        !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
             info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
             return;
         }
+
+        Instance.Config.Reload();
 
         string targetString = info.GetArg(1);
         if (!int.TryParse(info.GetArg(2), out int credits))
@@ -297,11 +380,13 @@ public static class Commands
     public static void Command_SetCredits(CCSPlayerController? player, CommandInfo info)
     {
         if (Instance.Config.Permissions.ResetCredits.Count > 0 &&
-            !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
+        !Instance.Config.Permissions.ResetCredits.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
             info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
             return;
         }
+
+        Instance.Config.Reload();
 
         string targetString = info.GetArg(1);
         if (!int.TryParse(info.GetArg(2), out int credits))

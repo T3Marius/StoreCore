@@ -20,7 +20,6 @@ public static class ScreenMenu
         {
             Title = Instance.Localizer.ForPlayer(player, "store<mainmenu>", credits)
         };
-
         mainMenu.AddItem(Instance.Localizer.ForPlayer(player, "buy<option>"), (p, o) =>
         {
             DisplayCategories(p, mainMenu);
@@ -87,7 +86,7 @@ public static class ScreenMenu
                     .Select(f => f.Trim())
                     .ToList();
 
-                bool hasEnoughCredits = playerCredits >= item.Price;
+                bool hasEnoughCredits = playerCredits >= item.Price || STORE_API.IsPlayerVip(player.SteamID); ;
                 bool canBuy = item.IsBuyable && hasEnoughCredits;
 
                 if (item.IsEquipable)
@@ -107,7 +106,8 @@ public static class ScreenMenu
                     itemDisplay += " " + Instance.Localizer.ForPlayer(player, "item.cannot.afford");
                 }
 
-                bool hasAccess = flagsList.Count == 0 || flagsList.Any(flag => AdminManager.PlayerHasPermissions(player, flag));
+                bool hasAccess = flagsList.Count == 0 || flagsList.Any(flag => AdminManager.PlayerHasPermissions(player, flag))
+                || STORE_API.IsPlayerVip(player.SteamID);
 
                 if (!hasAccess)
                 {
@@ -163,7 +163,8 @@ public static class ScreenMenu
         confirmMenu.AddItem("", (p, o) => { }, true);
         confirmMenu.AddItem(Instance.Localizer.ForPlayer(player, "confirm.yes", item.Price), (p, o) =>
         {
-            bool purchased = Item.PurchaseItem(p, uniqueId);
+            bool isVip = STORE_API.IsPlayerVip(p.SteamID);
+            bool purchased = Item.PurchaseItem(p, uniqueId, isVip);
             if (purchased)
             {
                 string purchaseMessage = Instance.Localizer["item.bought", item.Name, item.Price];
@@ -413,7 +414,9 @@ public static class ScreenMenu
 
         sellConfirmMenu.AddItem(Instance.Localizer.ForPlayer(player, "confirm.yes.sell"), (p, o) =>
         {
-            bool sold = Item.SellItem(p, item.UniqueId);
+            bool isVip = STORE_API.IsPlayerVip(p.SteamID);
+
+            bool sold = Item.SellItem(p, item.UniqueId, isVip);
             if (sold)
             {
                 p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["item.sold", item.Name, refundAmount]);

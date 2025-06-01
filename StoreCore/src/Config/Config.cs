@@ -19,6 +19,8 @@ public class Permission_Config
     public List<string> RemoveCredits { get; set; } = ["@css/root"];
     public List<string> SetCredits { get; set; } = ["@css/rcon"];
     public List<string> ResetCredits { get; set; } = ["@css/root"];
+    public List<string> AddVip { get; set; } = ["@css/root"];
+    public List<string> RemoveVip { get; set; } = ["@css/root"];
 }
 public class Main_Config
 {
@@ -63,6 +65,8 @@ public class Commands_Config
     public List<string> RemoveCredits { get; set; } = ["removecredits", "takecredits"];
     public List<string> GiftCredits { get; set; } = ["gift", "giftcredits"];
     public List<string> ResetCredits { get; set; } = ["resetcredits", "rc"];
+    public List<string> AddVip { get; set; } = ["addvip", "addvipstore"];
+    public List<string> RemoveVip { get; set; } = ["removevip", "removevipstore"];
 }
 public class Database_Config
 {

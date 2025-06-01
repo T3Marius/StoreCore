@@ -208,7 +208,7 @@ public static class Item
 
     }
 
-    public static bool PurchaseItem(CCSPlayerController player, string uniqueId)
+    public static bool PurchaseItem(CCSPlayerController player, string uniqueId, bool isVip = false)
     {
         if (player == null || !player.IsValid || player.IsBot)
             return false;
@@ -232,13 +232,16 @@ public static class Item
             return false;
         }
 
-        int credits = STORE_API.GetClientCredits(player);
-        if (credits < item.Price)
+        if (!isVip)
         {
-            return false;
-        }
+            int credits = STORE_API.GetClientCredits(player);
+            if (credits < item.Price)
+            {
+                return false;
+            }
 
-        STORE_API.RemoveClientCredits(player, item.Price);
+            STORE_API.RemoveClientCredits(player, item.Price);
+        }
 
         if (!_playerItems.ContainsKey(steamId))
             _playerItems[steamId] = new List<Store.Store_Item>();
@@ -406,7 +409,7 @@ public static class Item
 
         return true;
     }
-    public static bool SellItem(CCSPlayerController player, string uniqueId)
+    public static bool SellItem(CCSPlayerController player, string uniqueId, bool isVip = false)
     {
         if (player == null || !player.IsValid || player.IsBot)
             return false;
@@ -427,7 +430,10 @@ public static class Item
 
         int refund = (int)(item.Price * 0.7);
 
-        STORE_API.AddClientCredits(player, refund);
+        if (!isVip)
+        {
+            STORE_API.AddClientCredits(player, refund);
+        }
 
         UnequipItem(player, uniqueId);
 
