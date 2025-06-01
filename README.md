@@ -34,7 +34,7 @@
 
 - [Tracers] | You can add how many tracers colors you want in config + random tracer or team tracer.
 
-- [Trails] | Allows players to buy trails, you can set all colors u want.
+- [Trails] | Allows players to buy trails, grenade trails, you can set all colors u want.
   
 - [VIPShop] | You need VIPCore for this. You can allow players to buy vip groups with durations.
 
