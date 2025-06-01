@@ -248,7 +248,7 @@ public class PluginConfig
                 Id = "medic_kit_50_no_limit",
                 Name = "Medic 50HP no limit",
                 Price = 5000,
-                Duration = 259200,
+                Duration = 0,
                 Type = "Healing",
                 Description = "A basic healing kit to restore health.",
                 Flags = "",
