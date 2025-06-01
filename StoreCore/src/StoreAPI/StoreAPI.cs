@@ -59,6 +59,10 @@ public class StoreAPI : IStoreAPI
     {
         return Item.RegisterItem(uniqueId, name, category, type, price, description, flags, isSellable, isBuyable, isEquipable, duration);
     }
+    public bool UnregisterItem(string uniqueId)
+    {
+        return Item.UnregisterItem(uniqueId);
+    }
     public bool PurchaseItem(CCSPlayerController player, string uniqueId)
     {
         return Item.PurchaseItem(player, uniqueId);

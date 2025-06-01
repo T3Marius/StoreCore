@@ -158,7 +158,55 @@ public static class Item
 
         return true;
     }
+    public static bool UnregisterItem(string uniqueId)
+    {
+        if (!Database.IsInitialized)
+            return false;
 
+        if (!_availableItems.ContainsKey(uniqueId))
+        {
+            Instance.Logger.LogWarning($"Attempted to unregister non-existent item: {uniqueId}");
+            return false;
+        }
+
+        var item = _availableItems[uniqueId];
+
+        if (_categories.ContainsKey(item.Category))
+        {
+            _categories[item.Category].Remove(uniqueId);
+
+            if (_categories[item.Category].Count == 0)
+            {
+                _categories.Remove(item.Category);
+            }
+        }
+        foreach (var playerItems in _playerItems.Values)
+        {
+            playerItems.RemoveAll(i => i.UniqueId == uniqueId);
+        }
+
+        foreach (var playerEquipment in _playerEquipment.Values)
+        {
+            playerEquipment.RemoveAll(e => e.UniqueId == uniqueId);
+        }
+
+        Task.Run(async () =>
+        {
+            bool success = await Database.UnregisterItemAsync(uniqueId);
+        });
+
+
+        var itemData = new Dictionary<string, string>
+        {
+            { "uniqueid", item.UniqueId },
+            { "name", item.Name },
+            { "category", item.Category },
+            { "type", item.Type }
+        };
+
+        return true;
+
+    }
 
     public static bool PurchaseItem(CCSPlayerController player, string uniqueId)
     {

@@ -400,7 +400,47 @@ public static class Database
             return false;
         }
     }
+    public static async Task<bool> UnregisterItemAsync(string uniqueId)
+    {
+        if (!IsInitialized)
+            return false;
 
+        try
+        {
+            using MySqlConnection connection = await ConnectAsync();
+            using MySqlTransaction transaction = await connection.BeginTransactionAsync();
+
+            try
+            {
+                await connection.ExecuteAsync(
+                    "DELETE FROM store_equipment WHERE UniqueId = @UniqueId",
+                    new { UniqueId = uniqueId }, transaction
+                );
+                await connection.ExecuteAsync(
+                    "DELETE FROM store_player_items WHERE UniqueId = @UniqueId",
+                    new { UniqueId = uniqueId }, transaction
+                );
+
+                int rowsAffected = await connection.ExecuteAsync(
+                    "DELETE FROM store_items WHERE UniqueId = @UniqueId",
+                    new { UniqueId = uniqueId }, transaction);
+
+                await transaction.CommitAsync();
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Instance.Logger.LogError($"Error unregistering item in database transaction: {ex.Message}");
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            Instance.Logger.LogError($"Failed to unregister item from database: {ex.Message}");
+            return false;
+        }
+    }
     public static async Task<List<Store.Store_Item>> GetAllItemsAsync()
     {
         try

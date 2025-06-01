@@ -56,6 +56,11 @@ namespace StoreAPI
         public bool RegisterItem(string uniqueId, string name, string category, string type, int price, string description = "", string flags = "", bool isSellable = true, bool isBuyable = true, bool isEquipable = true, int duration = 0);
 
         /// <summary>
+        /// Unregisters a store item.
+        /// </summary>
+        public bool UnregisterItem(string uniqueId);
+
+        /// <summary>
         /// Force Purchase item for player.
         /// </summary>
         public bool PurchaseItem(CCSPlayerController player, string uniqueId);
