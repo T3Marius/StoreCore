@@ -92,6 +92,7 @@ CreditsPerRoundWin = { "@css/vip" = 2, "@css/root" = 4 }
 
 [Commands]
 OpenStore = ["store", "shop", "market"]          # commands to open the main store.
+OpenInventoy = ["inventory", "inv"]              # commands to open the inventory.
 ShowCredits = ["credits", "mycredits"]           # commands to show your current credits.
 AddCredits = ["addcredits", "givecredits"]       # commands to give credits, as an admin.
 SetCredits = ["setcredits"]                      # command to set credits, as an admin.
@@ -101,6 +102,7 @@ ResetCredits = ["rc", "resetcredits"]            # commands to reset all players
 
 [Permissions]		# set permission foreach command.
 StoreCommand = []
+InventoryCommand = []
 AddCredits = ["@css/root"]
 RemoveCredits = ["@css/root"]
 SetCredits = ["@css/root"]
