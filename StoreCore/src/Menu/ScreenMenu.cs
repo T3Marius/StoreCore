@@ -203,11 +203,15 @@ public static class ScreenMenu
         }
         else
         {
+            bool hasAnyDisplayableCategory = false;
+
             foreach (var category in categories)
             {
-                var playerItems = Item.GetPlayerItems(player.SteamID, category);
-                if (playerItems.Count > 0)
+                var playerOwnedItemsInCategory = Item.GetPlayerItems(player.SteamID, category);
+
+                if (playerOwnedItemsInCategory.Any(item => item.IsEquipable))
                 {
+                    hasAnyDisplayableCategory = true;
                     inventoryCategoryMenu.AddItem(category, (p, option) =>
                     {
                         DisplayInventoryItems(p, category, inventoryCategoryMenu);
@@ -215,7 +219,7 @@ public static class ScreenMenu
                 }
             }
 
-            if (inventoryCategoryMenu.Options.Count == 0)
+            if (!hasAnyDisplayableCategory)
             {
                 inventoryCategoryMenu.AddItem(Instance.Localizer.ForPlayer(player, "no.owned.items"), (p, o) => { }, true);
             }
@@ -239,15 +243,14 @@ public static class ScreenMenu
         }
         else
         {
-            bool hasAnyItems = false;
-
+            bool hasAnyDisplayableCategory = false;
             foreach (var category in categories)
             {
-                var playerItems = Item.GetPlayerItems(player.SteamID, category).Where(i => i.IsEquipable || i.IsSellable).ToList();
+                var playerOwnedItemsInCategory = Item.GetPlayerItems(player.SteamID, category);
 
-                if (playerItems.Count > 0)
+                if (playerOwnedItemsInCategory.Any(item => item.IsEquipable))
                 {
-                    hasAnyItems = true;
+                    hasAnyDisplayableCategory = true;
                     inventoryCategoryMenu.AddItem(category, (p, option) =>
                     {
                         DisplayInventoryItems(p, category, inventoryCategoryMenu);
@@ -255,7 +258,7 @@ public static class ScreenMenu
                 }
             }
 
-            if (!hasAnyItems)
+            if (!hasAnyDisplayableCategory)
             {
                 inventoryCategoryMenu.AddItem(Instance.Localizer.ForPlayer(player, "no.owned.items"), (p, o) => { }, true);
             }

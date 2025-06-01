@@ -295,22 +295,21 @@ public static class T3Menu
 
         IT3Menu menu = manager.CreateMenu(Instance.Localizer.ForPlayer(player, "inventory<title>"));
 
-
         if (categories.Count == 0)
         {
             menu.AddOption(Instance.Localizer.ForPlayer(player, "no.categories"), (p, o) => { }, true);
         }
         else
         {
-            bool hasAnyItems = false;
+            bool hasAnyDisplayableCategory = false;
 
             foreach (var category in categories)
             {
-                var playerItems = Item.GetPlayerItems(player.SteamID, category).Where(i => i.IsEquipable || i.IsSellable).ToList();
+                var playerOwnedItemsInCategory = Item.GetPlayerItems(player.SteamID, category);
 
-                if (playerItems.Count > 0)
+                if (playerOwnedItemsInCategory.Any(item => item.IsEquipable))
                 {
-                    hasAnyItems = true;
+                    hasAnyDisplayableCategory = true;
                     menu.AddOption(category, (p, option) =>
                     {
                         DisplayInventoryItems(p, category, menu);
@@ -318,12 +317,12 @@ public static class T3Menu
                 }
             }
 
-            if (!hasAnyItems)
+            if (!hasAnyDisplayableCategory)
             {
                 menu.AddOption(Instance.Localizer.ForPlayer(player, "no.owned.items"), (p, o) => { }, true);
             }
         }
-        manager.OpenSubMenu(player, menu);
+        manager.OpenMainMenu(player, menu);
     }
     private static void DisplayInventory(CCSPlayerController player, IT3Menu prevMenu)
     {
@@ -334,18 +333,20 @@ public static class T3Menu
         IT3Menu menu = manager.CreateMenu(Instance.Localizer.ForPlayer(player, "inventory<title>"), isSubMenu: true);
         menu.ParentMenu = prevMenu;
 
-
         if (categories.Count == 0)
         {
             menu.AddOption(Instance.Localizer.ForPlayer(player, "no.categories"), (p, o) => { }, true);
         }
         else
         {
+            bool hasAnyDisplayableCategory = false;
             foreach (var category in categories)
             {
-                var playerItems = Item.GetPlayerItems(player.SteamID, category);
-                if (playerItems.Count > 0)
+                var playerOwnedItemsInCategory = Item.GetPlayerItems(player.SteamID, category);
+
+                if (playerOwnedItemsInCategory.Any(item => item.IsEquipable))
                 {
+                    hasAnyDisplayableCategory = true;
                     menu.AddOption(category, (p, option) =>
                     {
                         DisplayInventoryItems(p, category, menu);
@@ -353,7 +354,7 @@ public static class T3Menu
                 }
             }
 
-            if (menu.Options.Count == 0)
+            if (!hasAnyDisplayableCategory)
             {
                 menu.AddOption(Instance.Localizer.ForPlayer(player, "no.owned.items"), (p, o) => { }, true);
             }
