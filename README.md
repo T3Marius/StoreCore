@@ -17,6 +17,8 @@
 - [Pets] - 20$ | Add as many pets as you want, player can preview them. Of course you need to have your own pets models.
 
 # Free Modules
+## Very Important!!!!!
+- **When you want to delete a module, make sure the server is not off when doing so the items from that module can be unregistered!!!!**
 
 - [PlayerModels] | Allows you to add how many models you want from the module config.
 
