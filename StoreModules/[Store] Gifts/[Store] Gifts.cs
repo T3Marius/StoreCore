@@ -10,7 +10,7 @@ public class Gifts : BasePlugin
 {
     public override string ModuleName => "[Store] Gifts";
     public override string ModuleAuthor => "GSM-RO";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.0.1";
 
     public IStoreAPI? StoreApi;
     public GiftPluginConfig Config { get; set; } = new();
@@ -49,6 +49,7 @@ public class Gifts : BasePlugin
                 player.PrintToChat($"[Store] 🎁 You received a gift: {gift.Name}!");
                 player.PrintToChat($"[Store] ******************************");
                 player.ExecuteClientCommand("play sounds/ui/item_drop1_common.vsnd_c");
+                Logger.LogInformation($"[Gifts] {player.PlayerName} ({player.SteamID}) received: {gift.Name} [{gift.Type}:{gift.Value}]");
             }
         }
 
@@ -108,9 +109,9 @@ public class GiftPluginConfig
     public List<GiftItem> Gifts { get; set; } = new()
     {
         new GiftItem { Name = "100 Credits", Type = "credits", Value = "100", Chance = 40 },
-        new GiftItem { Name = "100 Credits", Type = "credits", Value = "1000", Chance = 30 },
-        new GiftItem { Name = "100 Credits", Type = "credits", Value = "2000", Chance = 15 },
-        new GiftItem { Name = "100 Credits", Type = "credits", Value = "5000", Chance = 10 },
+        new GiftItem { Name = "1000 Credits", Type = "credits", Value = "1000", Chance = 30 },
+        new GiftItem { Name = "2000 Credits", Type = "credits", Value = "2000", Chance = 15 },
+        new GiftItem { Name = "5000 Credits", Type = "credits", Value = "5000", Chance = 10 },
         new GiftItem { Name = "VIP 1 day", Type = "command", Value = "css_vip_adduser {steamid} VIP 86400", Chance = 5 },
         //new GiftItem { Name = "Chicken Model", Type = "model", Value = "models/chicken/chicken.vmdl", Chance = 20 },
     };
