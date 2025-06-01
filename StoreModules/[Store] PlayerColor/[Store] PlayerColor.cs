@@ -23,21 +23,7 @@ public class PlayerColor : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
         Config = StoreApi.GetModuleConfig<PluginConfig>("PlayerColor");
 
-        foreach (var kvp in Config.PlayerColors)
-        {
-            var color = kvp.Value;
-
-            StoreApi.RegisterItem(
-                color.Id,
-                color.Name,
-                Config.Category,
-                color.Type,
-                color.Price,
-                color.Description,
-                color.Flags,
-                duration: color.Duration
-            );
-        }
+        RegisterItems();
 
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
         RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
@@ -47,6 +33,10 @@ public class PlayerColor : BasePlugin
         StoreApi.OnPlayerUnequipItem += OnPlayerUnequipItem;
         StoreApi.OnPlayerSellItem += OnPlayerSellItem;
         StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
+    }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItems();
     }
     public void OnPlayerPurchaseItem(CCSPlayerController player, Dictionary<string, string> item)
     {
@@ -209,6 +199,40 @@ public class PlayerColor : BasePlugin
         {
             timer.Kill();
             RainbowTimer.Remove(playerSlot);
+        }
+    }
+    public void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.PlayerColors)
+        {
+            var vip = kvp.Value;
+
+            StoreApi.RegisterItem(
+                vip.Id,
+                vip.Name,
+                Config.Category,
+                vip.Type,
+                vip.Price,
+                vip.Description,
+                vip.Flags,
+                isEquipable: false,
+                isSellable: false
+            );
+        }
+    }
+    public void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.PlayerColors)
+        {
+            var vip = kvp.Value;
+
+            StoreApi.UnregisterItem(vip.Id);
         }
     }
 }

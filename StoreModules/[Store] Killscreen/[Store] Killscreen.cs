@@ -20,24 +20,13 @@ public class Killscreen : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found!");
         Config = StoreApi.GetModuleConfig<PluginConfig>("Killscreen");
 
-        if (!hotReload)
-        {
-            foreach (var kvp in Config.Killscreens)
-            {
-                var killScreen = kvp.Value;
+        RegisterItems();
 
-                StoreApi.RegisterItem(
-                    killScreen.Id,
-                    killScreen.Name,
-                    Config.Category,
-                    killScreen.Type,
-                    killScreen.Price,
-                    killScreen.Description,
-                    killScreen.Flags,
-                    duration: killScreen.Duration);
-            }
-        }
         StoreApi.OnItemPreview += OnItemPreview;
+    }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItems();
     }
     public HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
@@ -80,6 +69,38 @@ public class Killscreen : BasePlugin
                 Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_flHealthShotBoostExpirationTime");
                 break;
             }
+        }
+    }
+    public void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Killscreens)
+        {
+            var killScreen = kvp.Value;
+
+            StoreApi.RegisterItem(
+                killScreen.Id,
+                killScreen.Name,
+                Config.Category,
+                killScreen.Type,
+                killScreen.Price,
+                killScreen.Description,
+                killScreen.Flags,
+                duration: killScreen.Duration);
+        }
+    }
+    public void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Killscreens)
+        {
+            var killScreen = kvp.Value;
+
+            StoreApi.UnregisterItem(killScreen.Id);
         }
     }
 }

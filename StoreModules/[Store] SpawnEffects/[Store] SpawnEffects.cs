@@ -21,23 +21,11 @@ public class SpawnEffects : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
         Config = StoreApi.GetModuleConfig<PluginConfig>("SpawnEffects");
 
-        if (!hotReload)
-        {
-            foreach (var kvp in Config.SpawnEffects)
-            {
-                var spawnEffect = kvp.Value;
-
-                StoreApi.RegisterItem(
-                    spawnEffect.Id,
-                    spawnEffect.Name,
-                    Config.Category,
-                    spawnEffect.Type,
-                    spawnEffect.Price,
-                    spawnEffect.Description,
-                    spawnEffect.Flags,
-                    duration: spawnEffect.Duration);
-            }
-        }
+        RegisterItems();
+    }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItems();
     }
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
@@ -82,6 +70,40 @@ public class SpawnEffects : BasePlugin
         grenade.DispatchSpawn();
         grenade.AcceptInput("InitializeSpawnFromWorld", pawn, pawn, "");
         grenade.DetonateTime = 0;
+    }
+    public void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.SpawnEffects)
+        {
+            var vip = kvp.Value;
+
+            StoreApi.RegisterItem(
+                vip.Id,
+                vip.Name,
+                Config.Category,
+                vip.Type,
+                vip.Price,
+                vip.Description,
+                vip.Flags,
+                isEquipable: false,
+                isSellable: false
+            );
+        }
+    }
+    public void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.SpawnEffects)
+        {
+            var vip = kvp.Value;
+
+            StoreApi.UnregisterItem(vip.Id);
+        }
     }
 }
 public class PluginConfig

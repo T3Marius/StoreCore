@@ -31,21 +31,7 @@ public class Trails : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
         Config = StoreApi.GetModuleConfig<PluginConfig>("Trails");
 
-        foreach (var kvp in Config.Trails)
-        {
-            var trail = kvp.Value;
-
-            StoreApi.RegisterItem(
-                trail.Id,
-                trail.Name,
-                Config.Category,
-                trail.Type,
-                trail.Price,
-                trail.Description,
-                trail.Flags,
-                duration: trail.Duration
-            );
-        }
+        RegisterItems();
 
         for (int i = 0; i < 64; i++)
         {
@@ -65,6 +51,10 @@ public class Trails : BasePlugin
                 manifest.AddResource(trail.Path);
             }
         });
+    }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItems();
     }
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
@@ -406,6 +396,40 @@ public class Trails : BasePlugin
         {
             TrailEndOrigin[i] = new Vector();
             TrailLastOrigin[i] = new Vector();
+        }
+    }
+    public void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Trails)
+        {
+            var vip = kvp.Value;
+
+            StoreApi.RegisterItem(
+                vip.Id,
+                vip.Name,
+                Config.Category,
+                vip.Type,
+                vip.Price,
+                vip.Description,
+                vip.Flags,
+                isEquipable: false,
+                isSellable: false
+            );
+        }
+    }
+    public void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Trails)
+        {
+            var vip = kvp.Value;
+
+            StoreApi.UnregisterItem(vip.Id);
         }
     }
 }

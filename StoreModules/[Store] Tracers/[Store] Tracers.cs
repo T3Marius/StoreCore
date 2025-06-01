@@ -25,21 +25,11 @@ public class Tracers : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found!");
         Config = StoreApi.GetModuleConfig<PluginConfig>("Tracers");
 
-        foreach (var kvp in Config.Tracers)
-        {
-            var tracer = kvp.Value;
-
-            StoreApi.RegisterItem(
-                tracer.Id,
-                tracer.Name,
-                Config.Category,
-                tracer.Type,
-                tracer.Price,
-                tracer.Description,
-                tracer.Flags,
-                duration: tracer.Duration
-            );
-        }
+        RegisterItems();
+    }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItems();
     }
     public HookResult OnBulletImpact(EventBulletImpact @event, GameEventInfo info)
     {
@@ -111,6 +101,40 @@ public class Tracers : BasePlugin
     {
         Random random = new();
         return Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
+    }
+    public void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Tracers)
+        {
+            var vip = kvp.Value;
+
+            StoreApi.RegisterItem(
+                vip.Id,
+                vip.Name,
+                Config.Category,
+                vip.Type,
+                vip.Price,
+                vip.Description,
+                vip.Flags,
+                isEquipable: false,
+                isSellable: false
+            );
+        }
+    }
+    public void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Tracers)
+        {
+            var vip = kvp.Value;
+
+            StoreApi.UnregisterItem(vip.Id);
+        }
     }
 }
 public class PluginConfig

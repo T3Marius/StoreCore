@@ -23,24 +23,7 @@ public class PlayerModels : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
         Config = StoreApi.GetModuleConfig<PluginConfig>("PlayerModels");
 
-        if (!hotReload)
-        {
-            foreach (var kvp in Config.PlayerModels)
-            {
-                var playerModel = kvp.Value;
-
-                StoreApi.RegisterItem(
-                    playerModel.Id,
-                    playerModel.Name,
-                    Config.Category,
-                    playerModel.Type,
-                    playerModel.Price,
-                    playerModel.Description,
-                    playerModel.Flags,
-                    duration: playerModel.Duration);
-            }
-        }
-
+        RegisterItems();
 
         StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
         StoreApi.OnPlayerUnequipItem += OnPlayerUnequipItem;
@@ -57,6 +40,10 @@ public class PlayerModels : BasePlugin
                 manifest.AddResource(playerModel.ModelPath);
             }
         });
+    }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItems();
     }
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
@@ -223,6 +210,40 @@ public class PlayerModels : BasePlugin
                 }
                 break;
             }
+        }
+    }
+    public void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.PlayerModels)
+        {
+            var vip = kvp.Value;
+
+            StoreApi.RegisterItem(
+                vip.Id,
+                vip.Name,
+                Config.Category,
+                vip.Type,
+                vip.Price,
+                vip.Description,
+                vip.Flags,
+                isEquipable: false,
+                isSellable: false
+            );
+        }
+    }
+    public void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.PlayerModels)
+        {
+            var vip = kvp.Value;
+
+            StoreApi.UnregisterItem(vip.Id);
         }
     }
 }

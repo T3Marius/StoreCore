@@ -21,25 +21,7 @@ public class Flags : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
         Config = StoreApi.GetModuleConfig<PluginConfig>("Flags");
 
-        if (!hotReload)
-        {
-            foreach (var kvp in Config.Flags)
-            {
-                var flag = kvp.Value;
-
-                StoreApi.RegisterItem(
-                    flag.Id,
-                    flag.Name,
-                    Config.Category,
-                    flag.Type,
-                    flag.Price,
-                    flag.Description,
-                    flag.Flags,
-                    duration: flag.Duration,
-                    isEquipable: false
-                    );
-            }
-        }
+        RegisterItems();
 
         StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
         StoreApi.OnPlayerItemExpired += OnPlayerItemExpired;
@@ -91,6 +73,44 @@ public class Flags : BasePlugin
         }
 
         return HookResult.Continue;
+    }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItems();
+    }
+    private void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Flags)
+        {
+            var flag = kvp.Value;
+
+            StoreApi.RegisterItem(
+                flag.Id,
+                flag.Name,
+                Config.Category,
+                flag.Type,
+                flag.Price,
+                flag.Description,
+                flag.Flags,
+                duration: flag.Duration,
+                isEquipable: false
+                );
+        }
+    }
+    private void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Flags)
+        {
+            var flag = kvp.Value;
+
+            StoreApi.UnregisterItem(flag.Id);
+        }
     }
 }
 public class PluginConfig

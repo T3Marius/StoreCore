@@ -46,25 +46,15 @@ public class Parachute : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found!");
         Config = StoreApi.GetModuleConfig<PluginConfig>("Parachute");
 
-        if (!hotReload)
-        {
-            foreach (var kvp in Config.Parachutes)
-            {
-                var parachute = kvp.Value;
+        RegisterItems();
 
-                StoreApi.RegisterItem(
-                    parachute.Id,
-                    parachute.Name,
-                    Config.Category,
-                    parachute.Type,
-                    parachute.Price,
-                    parachute.Description,
-                    parachute.Flags,
-                    duration: parachute.Duration);
-            }
-        }
         StoreApi.OnItemPreview += OnItemPreview;
     }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItems();
+    }
+
 
     public void OnServerPrecacheResources(ResourceManifest manifest)
     {
@@ -218,6 +208,38 @@ public class Parachute : BasePlugin
 
                 break;
             }
+        }
+    }
+    public void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Parachutes)
+        {
+            var parachute = kvp.Value;
+
+            StoreApi.RegisterItem(
+                parachute.Id,
+                parachute.Name,
+                Config.Category,
+                parachute.Type,
+                parachute.Price,
+                parachute.Description,
+                parachute.Flags,
+                duration: parachute.Duration);
+        }
+    }
+    public void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Parachutes)
+        {
+            var parachute = kvp.Value;
+
+            StoreApi.UnregisterItem(parachute.Id);
         }
     }
 }

@@ -35,20 +35,7 @@ public class Cases : BasePlugin
             Config = loadedConfig;
         }
 
-
-        foreach (var storeCase in Config.Cases)
-        {
-            StoreApi.RegisterItem(
-                storeCase.Id,
-                storeCase.Name,
-                Config.Category,
-                "store_case",
-                storeCase.Price,
-                storeCase.Description,
-                storeCase.Flags,
-                isEquipable: false
-            );
-        }
+        RegisterItems();
 
         StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
         StoreApi.OnItemPreview += OnItemPreview;
@@ -65,6 +52,7 @@ public class Cases : BasePlugin
         }
         _caseTimers.Clear();
         _playerOpeningCase.Clear();
+        UnregisterItems();
     }
 
     private void OnServerPrecacheResourcesHandler(ResourceManifest manifest)
@@ -331,6 +319,35 @@ public class Cases : BasePlugin
             default:
                 Logger.LogWarning($"[Cases] Unknown item type: '{item.Type}' for item '{item.Name}'.");
                 break;
+        }
+    }
+    private void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var storeCase in Config.Cases)
+        {
+            StoreApi.RegisterItem(
+                storeCase.Id,
+                storeCase.Name,
+                Config.Category,
+                "store_case",
+                storeCase.Price,
+                storeCase.Description,
+                storeCase.Flags,
+                isEquipable: false
+            );
+        }
+    }
+    private void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var storeCase in Config.Cases)
+        {
+            StoreApi.UnregisterItem(storeCase.Id);
         }
     }
 }

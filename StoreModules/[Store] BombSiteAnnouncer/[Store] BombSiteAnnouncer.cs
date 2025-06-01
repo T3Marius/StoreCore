@@ -115,19 +115,7 @@ public class BombsiteAnnouncer : BasePlugin
             ?? throw new Exception("StoreAPI not found! Please make sure StoreCore is installed.");
 
         Config = StoreApi.GetModuleConfig<Config>(ModuleName) ?? Config;
-
-        if (!hotReload)
-        {
-            StoreApi.RegisterItem(
-                Config.StoreItemId,
-                Config.StoreItemName,
-                Config.StoreCategory,
-                Config.StoreItemType,
-                Config.StoreItemPrice,
-                Config.StoreItemDescription,
-                duration: Config.StoreItemDuration
-            );
-        }
+        RegisterItem();
     }
 
     private bool HasAccessToAnnouncer(CCSPlayerController player)
@@ -137,8 +125,6 @@ public class BombsiteAnnouncer : BasePlugin
 
         return StoreApi.IsItemEquipped(player.SteamID, Config.StoreItemId, player.TeamNum);
     }
-
-
 
     private void OnTick(CCSPlayerController player)
     {
@@ -300,5 +286,31 @@ public class BombsiteAnnouncer : BasePlugin
             }
         }
         return false;
+    }
+    private void RegisterItem()
+    {
+        if (StoreApi == null)
+            return;
+
+        StoreApi.RegisterItem(
+            Config.StoreItemId,
+            Config.StoreItemName,
+            Config.StoreCategory,
+            Config.StoreItemType,
+            Config.StoreItemPrice,
+            Config.StoreItemDescription,
+            duration: Config.StoreItemDuration
+        );
+    }
+    private void UnregisterItem()
+    {
+        if (StoreApi == null)
+            return;
+
+        StoreApi.UnregisterItem(Config.StoreItemId);
+    }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItem();
     }
 }

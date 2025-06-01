@@ -26,22 +26,6 @@ public class MedicPlugin : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
         Config = StoreApi.GetModuleConfig<PluginConfig>("Medic");
 
-        if (!hotReload)
-        {
-            foreach (var kvp in Config.MedicItems)
-            {
-                var medicItem = kvp.Value;
-                StoreApi.RegisterItem(
-                    medicItem.Id,
-                    medicItem.Name,
-                    Config.Category,
-                    medicItem.Type,
-                    medicItem.Price,
-                    medicItem.Description,
-                    duration: medicItem.Duration);
-            }
-        }
-
         StoreApi.OnItemPreview += OnItemPreview;
     }
     public override void Load(bool hotReload)
@@ -53,6 +37,10 @@ public class MedicPlugin : BasePlugin
         {
             Server.PrecacheModel("weapons/w_eq_charge");
         });
+    }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItems();
     }
 
     private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
@@ -199,6 +187,37 @@ public class MedicPlugin : BasePlugin
                 Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_iHealth");
                 break;
             }
+        }
+    }
+    public void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+
+        foreach (var kvp in Config.MedicItems)
+        {
+            var medicItem = kvp.Value;
+            StoreApi.RegisterItem(
+                medicItem.Id,
+                medicItem.Name,
+                Config.Category,
+                medicItem.Type,
+                medicItem.Price,
+                medicItem.Description,
+                duration: medicItem.Duration);
+        }
+    }
+    public void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+
+        foreach (var kvp in Config.MedicItems)
+        {
+            var medicItem = kvp.Value;
+            StoreApi.UnregisterItem(medicItem.Id);
         }
     }
 }

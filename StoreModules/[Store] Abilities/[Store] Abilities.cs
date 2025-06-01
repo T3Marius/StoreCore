@@ -27,68 +27,7 @@ public class Abilities : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
         Config = StoreApi.GetModuleConfig<PluginConfig>("Abilities");
 
-
-        foreach (var kvp in Config.Speeds)
-        {
-            var speed = kvp.Value;
-
-            StoreApi.RegisterItem(
-                speed.Id,
-                speed.Name,
-                Config.Category,
-                speed.Type,
-                speed.Price,
-                speed.Description,
-                speed.Flags,
-                isEquipable: false
-                );
-        }
-        foreach (var kvp in Config.Gravitys)
-        {
-            var gravity = kvp.Value;
-
-            StoreApi.RegisterItem(
-                gravity.Id,
-                gravity.Name,
-                Config.Category,
-                gravity.Type,
-                gravity.Price,
-                gravity.Description,
-                gravity.Flags,
-                isEquipable: false
-                );
-        }
-        foreach (var kvp in Config.Gods)
-        {
-            var god = kvp.Value;
-
-            StoreApi.RegisterItem(
-                god.Id,
-                god.Name,
-                Config.Category,
-                god.Type,
-                god.Price,
-                god.Description,
-                god.Flags,
-                isEquipable: false
-                );
-        }
-        foreach (var kvp in Config.NoClips)
-        {
-            var noclip = kvp.Value;
-
-            StoreApi.RegisterItem(
-                noclip.Id,
-                noclip.Name,
-                Config.Category,
-                noclip.Type,
-                noclip.Price,
-                noclip.Description,
-                noclip.Flags,
-                isEquipable: false
-                );
-        }
-
+        RegisterItems();
 
         StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
 
@@ -204,6 +143,96 @@ public class Abilities : BasePlugin
         pawn.MoveType = movetype;
         Schema.SetSchemaValue(pawn.Handle, "CBaseEntity", "m_nActualMoveType", movetype);
         Utilities.SetStateChanged(pawn, "CBaseEntity", "m_MoveType");
+    }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItems();
+    }
+    public void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+
+        foreach (var kvp in Config.Speeds)
+        {
+            var speed = kvp.Value;
+
+            StoreApi.RegisterItem(
+                speed.Id,
+                speed.Name,
+                Config.Category,
+                speed.Type,
+                speed.Price,
+                speed.Description,
+                speed.Flags,
+                isEquipable: false
+                );
+        }
+        foreach (var kvp in Config.Gravitys)
+        {
+            var gravity = kvp.Value;
+
+            StoreApi.RegisterItem(
+                gravity.Id,
+                gravity.Name,
+                Config.Category,
+                gravity.Type,
+                gravity.Price,
+                gravity.Description,
+                gravity.Flags,
+                isEquipable: false
+                );
+        }
+        foreach (var kvp in Config.Gods)
+        {
+            var god = kvp.Value;
+
+            StoreApi.RegisterItem(
+                god.Id,
+                god.Name,
+                Config.Category,
+                god.Type,
+                god.Price,
+                god.Description,
+                god.Flags,
+                isEquipable: false
+                );
+        }
+        foreach (var kvp in Config.NoClips)
+        {
+            var noclip = kvp.Value;
+
+            StoreApi.RegisterItem(
+                noclip.Id,
+                noclip.Name,
+                Config.Category,
+                noclip.Type,
+                noclip.Price,
+                noclip.Description,
+                noclip.Flags,
+                isEquipable: false
+                );
+        }
+    }
+    public void UnregisterItems()
+    {
+        foreach (var item in Config.Gods.Values)
+        {
+            StoreApi?.UnregisterItem(item.Id);
+        }
+        foreach (var item in Config.NoClips.Values)
+        {
+            StoreApi?.UnregisterItem(item.Id);
+        }
+        foreach (var item in Config.Speeds.Values)
+        {
+            StoreApi?.UnregisterItem(item.Id);
+        }
+        foreach (var item in Config.Gravitys.Values)
+        {
+            StoreApi?.UnregisterItem(item.Id);
+        }
     }
 
 }

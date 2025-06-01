@@ -10,7 +10,7 @@ public class HitSounds : BasePlugin
     public override string ModuleName => "[Store Core] Hit-Sounds";
     public override string ModuleVersion => "1.0.1";
     public IStoreAPI? StoreApi;
-    public PluginConfig? Config;
+    public PluginConfig Config { get; set; } = new PluginConfig();
     public override void Load(bool hotReload)
     {
         RegisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
@@ -20,25 +20,8 @@ public class HitSounds : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi couldn't be found!");
         Config = StoreApi.GetModuleConfig<PluginConfig>("HitSounds");
 
-        if (!hotReload)
-        {
-            foreach (var kvp in Config.HitSounds)
-            {
-                var hitSound = kvp.Value;
-                StoreApi.RegisterItem(
-                    hitSound.Id,
-                    hitSound.Name,
-                    Config.CategoryName,
-                    "Sound",
-                    hitSound.Price,
-                    hitSound.Description,
-                    hitSound.Flags,
-                    true,
-                    true,
-                    true,
-                    hitSound.Duration);
-            }
-        }
+        RegisterItems();
+
         StoreApi.OnItemPreview += OnItemPreview;
     }
     public HookResult OnPlayerHurt(EventPlayerHurt @event, GameEventInfo info)
@@ -79,6 +62,39 @@ public class HitSounds : BasePlugin
             {
                 player.ExecuteClientCommand($"play {kvp.Value.SoundPath}");
             }
+        }
+    }
+    public void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.HitSounds)
+        {
+            var hitSound = kvp.Value;
+            StoreApi.RegisterItem(
+                hitSound.Id,
+                hitSound.Name,
+                Config.CategoryName,
+                "Sound",
+                hitSound.Price,
+                hitSound.Description,
+                hitSound.Flags,
+                true,
+                true,
+                true,
+                hitSound.Duration);
+        }
+    }
+    public void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.HitSounds)
+        {
+            var hitSound = kvp.Value;
+            StoreApi.UnregisterItem(hitSound.Id);
         }
     }
 }

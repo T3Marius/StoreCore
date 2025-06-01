@@ -39,21 +39,7 @@ public class Bhop : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
         Config = StoreApi.GetModuleConfig<PluginConfig>("Bhop");
 
-        foreach (var kvp in Config.Bhops)
-        {
-            var bhop = kvp.Value;
-
-            StoreApi.RegisterItem(
-                bhop.Id,
-                bhop.Name,
-                Config.Category,
-                bhop.Type,
-                bhop.Price,
-                bhop.Description,
-                bhop.Flags,
-                duration: bhop.Duration
-            );
-        }
+        RegisterItems();
 
         RegisterListener<OnTick>(OnTick);
         RegisterListener<OnClientDisconnectPost>(OnClientDisconnect);
@@ -225,9 +211,43 @@ public class Bhop : BasePlugin
                 SetBunnyhop(player, false);
             }
         }
-
-        base.Unload(hotReload);
+        UnregisterItems();
     }
+
+    private void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Bhops)
+        {
+            var bhop = kvp.Value;
+
+            StoreApi.RegisterItem(
+                bhop.Id,
+                bhop.Name,
+                Config.Category,
+                bhop.Type,
+                bhop.Price,
+                bhop.Description,
+                bhop.Flags,
+                duration: bhop.Duration
+            );
+        }
+    }
+    private void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Bhops)
+        {
+            var bhop = kvp.Value;
+
+            StoreApi.UnregisterItem(bhop.Id);
+        }
+    }
+
 }
 
 public class PluginConfig

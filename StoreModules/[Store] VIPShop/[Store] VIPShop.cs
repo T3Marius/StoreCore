@@ -17,6 +17,31 @@ public class VIPShop : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
         Config = StoreApi.GetModuleConfig<PluginConfig>("VIPShop");
 
+        RegisterItems();
+
+        StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
+    }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItems();
+    }
+    public void OnPlayerPurchaseItem(CCSPlayerController player, Dictionary<string, string> item)
+    {
+        foreach (var vip in Config.Vips.Values)
+        {
+            if (item["uniqueid"] == vip.Id)
+            {
+                string command = vip.Command.Replace("{steamid}", player.SteamID.ToString());
+                Server.ExecuteCommand(command);
+                Logger.LogInformation("Executed command {command} for {steamid}", command, player.SteamID);
+            }
+        }
+    }
+    public void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
         foreach (var kvp in Config.Vips)
         {
             var vip = kvp.Value;
@@ -33,19 +58,17 @@ public class VIPShop : BasePlugin
                 isSellable: false
             );
         }
-
-        StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
     }
-    public void OnPlayerPurchaseItem(CCSPlayerController player, Dictionary<string, string> item)
+    public void UnregisterItems()
     {
-        foreach (var vip in Config.Vips.Values)
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Vips)
         {
-            if (item["uniqueid"] == vip.Id)
-            {
-                string command = vip.Command.Replace("{steamid}", player.SteamID.ToString());
-                Server.ExecuteCommand(command);
-                Logger.LogInformation("Executed command {command} for {steamid}", command, player.SteamID);
-            }
+            var vip = kvp.Value;
+
+            StoreApi.UnregisterItem(vip.Id);
         }
     }
 }

@@ -21,22 +21,11 @@ public class SmokeColor : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found!");
         Config = StoreApi.GetModuleConfig<PluginConfig>("SmokeColor");
 
-        if (!hotReload)
-        {
-            foreach (var kvp in Config.Smokes)
-            {
-                var smoke = kvp.Value;
-
-                StoreApi.RegisterItem(
-                    smoke.Id,
-                    smoke.Name,
-                    Config.Category,
-                    smoke.Type,
-                    smoke.Price,
-                    smoke.Description,
-                    duration: smoke.Duration);
-            }
-        }
+        RegisterItems();
+    }
+    public override void Unload(bool hotReload)
+    {
+        UnregisterItems();
     }
     public void OnEntitySpawned(CEntityInstance entity)
     {
@@ -72,6 +61,40 @@ public class SmokeColor : BasePlugin
                 }
             }
         });
+    }
+    public void RegisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Smokes)
+        {
+            var vip = kvp.Value;
+
+            StoreApi.RegisterItem(
+                vip.Id,
+                vip.Name,
+                Config.Category,
+                vip.Type,
+                vip.Price,
+                vip.Description,
+                vip.Flags,
+                isEquipable: false,
+                isSellable: false
+            );
+        }
+    }
+    public void UnregisterItems()
+    {
+        if (StoreApi == null)
+            return;
+
+        foreach (var kvp in Config.Smokes)
+        {
+            var vip = kvp.Value;
+
+            StoreApi.UnregisterItem(vip.Id);
+        }
     }
 }
 public class PluginConfig
