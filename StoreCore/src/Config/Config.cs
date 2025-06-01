@@ -14,6 +14,7 @@ public class StoreConfig : BasePluginConfig
 public class Permission_Config
 {
     public List<string> StoreCommand { get; set; } = [];
+    public List<string> InventoryCommand { get; set; } = [];
     public List<string> AddCredits { get; set; } = ["@css/root"];
     public List<string> RemoveCredits { get; set; } = ["@css/root"];
     public List<string> SetCredits { get; set; } = ["@css/rcon"];
@@ -54,7 +55,8 @@ public class Credits_Multiplier
 }
 public class Commands_Config
 {
-    public List<string> OpenStore { get; set; } = ["store", "shop", "inventory"];
+    public List<string> OpenStore { get; set; } = ["store", "shop"];
+    public List<string> OpenInventoy { get; set; } = ["inventory", "inv"];
     public List<string> ShowCredits { get; set; } = ["credits", "mycredits", "balance"];
     public List<string> AddCredits { get; set; } = ["addcredits", "givecredits"];
     public List<string> SetCredits { get; set; } = ["setcredits"];

@@ -7,6 +7,7 @@ using CounterStrikeSharp.API;
 using CS2ScreenMenuAPI;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace StoreCore;
 
@@ -45,6 +46,34 @@ public static class Commands
         {
             AddCmd($"css_{cmd}", "Opens the store menu", Command_Store);
         }
+        foreach (var cmd in Commands.OpenInventoy)
+        {
+            AddCmd($"css_{cmd}", "Opens the inventory", Command_Inventory);
+        }
+    }
+    public static void Command_Inventory(CCSPlayerController? player, CommandInfo info)
+    {
+        if (player == null)
+            return;
+
+        if (Instance.Config.Permissions.InventoryCommand.Count > 0 &&
+        !Instance.Config.Permissions.InventoryCommand.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
+        {
+            info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
+            return;
+        }
+
+        switch (Instance.Config.MainConfig.MenuType)
+        {
+            case "t3":
+                T3Menu.DisplayInventory(player);
+                break;
+
+            case "screen":
+                ScreenMenu.DisplayInventory(player);
+                break;
+        }
+
     }
     public static void Command_Store(CCSPlayerController? player, CommandInfo info)
     {
@@ -52,7 +81,7 @@ public static class Commands
             return;
 
         if (Instance.Config.Permissions.StoreCommand.Count > 0 &&
-             !Instance.Config.Permissions.StoreCommand.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
+        !Instance.Config.Permissions.StoreCommand.Any(flag => AdminManager.PlayerHasPermissions(player, flag)))
         {
             info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
             return;
