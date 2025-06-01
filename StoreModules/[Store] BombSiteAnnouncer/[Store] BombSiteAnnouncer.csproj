@@ -17,4 +17,8 @@
 	  <PackageReference Include="StoreAPI" Version="1.0.1" />
 	</ItemGroup>
 
+    <ItemGroup>	
+		<None Update="lang\**\*.*" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
 </Project>
