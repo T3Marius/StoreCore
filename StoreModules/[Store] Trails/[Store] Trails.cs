@@ -21,6 +21,7 @@ public class Trails : BasePlugin
     public readonly Vector[] TrailEndOrigin = new Vector[64];
 
     public static readonly Color[] rainbowColors = GenerateRainbowColors();
+    public readonly Dictionary<nint, Vector> grenadeLastPositions = new Dictionary<nint, Vector>();
     public static int colorIndex = 0;
 
     public static int tickCounter = 0;
@@ -56,6 +57,7 @@ public class Trails : BasePlugin
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
         RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
         RegisterEventHandler<EventRoundStart>(OnRoundStart);
+
         RegisterListener<OnServerPrecacheResources>((manifest) =>
         {
             foreach (var trail in Config.Trails.Values)
@@ -87,6 +89,7 @@ public class Trails : BasePlugin
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
         ResetAllTrails();
+        grenadeLastPositions.Clear();
 
         return HookResult.Continue;
     }
@@ -100,13 +103,13 @@ public class Trails : BasePlugin
 
         foreach (var p in Utilities.GetPlayers())
         {
-            foreach (var trail in Config.Trails.Values)
+            foreach (var trail in Config.Trails.Values.Where(t => !t.Id.Contains("grenade")))
             {
                 if (StoreApi.IsItemEquipped(p.SteamID, trail.Id, p.TeamNum))
                 {
                     var absOrigin = p.PlayerPawn.Value?.AbsOrigin;
                     if (absOrigin == null)
-                        return;
+                        continue;
 
                     if (ShouldUpdateTrail(p, absOrigin))
                     {
@@ -126,6 +129,93 @@ public class Trails : BasePlugin
                     }
                 }
             }
+
+            foreach (var trail in Config.Trails.Values.Where(t => t.Id.Contains("grenade")))
+            {
+                if (StoreApi.IsItemEquipped(p.SteamID, trail.Id, p.TeamNum))
+                {
+                    var grenades = Utilities.FindAllEntitiesByDesignerName<CBaseCSGrenadeProjectile>("hegrenade_projectile");
+
+                    foreach (var grenade in grenades)
+                    {
+                        if (grenade == null || !grenade.IsValid)
+                            continue;
+
+                        var thrower = grenade.Thrower.Value?.Controller.Value;
+                        if (thrower == null || thrower.SteamID != p.SteamID)
+                            continue;
+
+                        var grenadePos = grenade.AbsOrigin;
+                        if (grenadePos == null)
+                            continue;
+
+                        if (ShouldUpdateGrenadeTrail(grenade, grenadePos))
+                        {
+                            UpdateGrenadePosition(grenade, grenadePos);
+
+                            Color color = Color.White;
+                            if (trail.Color == "Rainbow" || trail.Color == "rainbow")
+                            {
+                                color = GetNextRainbowColor();
+                            }
+                            else if (!string.IsNullOrEmpty(trail.Color))
+                            {
+                                try
+                                {
+                                    color = Color.FromName(trail.Color);
+                                }
+                                catch
+                                {
+                                    color = Color.White;
+                                }
+                            }
+
+                            CreateGrenadeTrail(grenadePos, trail.Path, color, trail.Width, trail.LifeTime);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    public bool ShouldUpdateGrenadeTrail(CBaseCSGrenadeProjectile grenade, Vector currentPosition, float minDistance = 5.0f)
+    {
+        if (grenade == null || !grenade.IsValid)
+            return false;
+
+        var handle = grenade.Handle;
+
+        if (!grenadeLastPositions.ContainsKey(handle))
+        {
+            grenadeLastPositions[handle] = new Vector(currentPosition.X, currentPosition.Y, currentPosition.Z);
+            return true;
+        }
+
+        var lastPos = grenadeLastPositions[handle];
+        return VecCalculateDistance(lastPos, currentPosition) > minDistance;
+    }
+    public void UpdateGrenadePosition(CBaseCSGrenadeProjectile grenade, Vector currentPosition)
+    {
+        if (grenade == null || !grenade.IsValid)
+            return;
+
+        var handle = grenade.Handle;
+        grenadeLastPositions[handle] = new Vector(currentPosition.X, currentPosition.Y, currentPosition.Z);
+    }
+
+    public void CreateGrenadeTrail(Vector position, string file, Color color, float width = 1.0f, float lifetime = 1.0f)
+    {
+        if (string.IsNullOrEmpty(file))
+            return;
+
+        if (file.EndsWith(".vpcf"))
+        {
+            CreateGrenadeParticleTrail(position, file, lifetime);
+        }
+        else
+        {
+            CreateGrenadeBeamTrail(position, file, color, width, lifetime);
         }
     }
     public void CreateTrail(CCSPlayerController player, Vector absOrigin, string file, Color color, float width = 1.0f, float lifetime = 1.0f)
@@ -185,6 +275,47 @@ public class Trails : BasePlugin
 
         VecCopy(TrailEndOrigin[player.Slot], beam.EndPos);
         VecCopy(absOrigin, TrailEndOrigin[player.Slot]);
+        Utilities.SetStateChanged(beam, "CBeam", "m_vecEndPos");
+
+        AddTimer(lifetime, () =>
+        {
+            if (beam != null && beam.IsValid)
+                beam.Remove();
+        });
+    }
+    public void CreateGrenadeParticleTrail(Vector position, string particleFile, float lifetime = 1.0f)
+    {
+        CParticleSystem? particle = Utilities.CreateEntityByName<CParticleSystem>("info_particle_system");
+        if (particle == null)
+            return;
+
+        particle.EffectName = particleFile;
+        particle.Teleport(position, new QAngle(), new Vector());
+        particle.DispatchSpawn();
+        particle.AcceptInput("Start");
+
+        AddTimer(lifetime, () =>
+        {
+            if (particle != null && particle.IsValid)
+            {
+                particle.Remove();
+            }
+        });
+    }
+
+    public void CreateGrenadeBeamTrail(Vector position, string beamFile, Color color, float width = 1.0f, float lifetime = 1.0f)
+    {
+        var beam = Utilities.CreateEntityByName<CEnvBeam>("env_beam");
+        if (beam == null)
+            return;
+
+        beam.Width = width;
+        beam.Render = color;
+        beam.Teleport(position, new QAngle(), new Vector());
+        beam.DispatchSpawn();
+
+        var endPos = new Vector(position.X, position.Y, position.Z);
+        VecCopy(endPos, beam.EndPos);
         Utilities.SetStateChanged(beam, "CBeam", "m_vecEndPos");
 
         AddTimer(lifetime, () =>
