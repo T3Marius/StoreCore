@@ -26,6 +26,8 @@ public class MedicPlugin : BasePlugin
         StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
         Config = StoreApi.GetModuleConfig<PluginConfig>("Medic");
 
+        RegisterItems();
+
         StoreApi.OnItemPreview += OnItemPreview;
     }
     public override void Load(bool hotReload)
