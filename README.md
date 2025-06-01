@@ -18,7 +18,7 @@
 
 # Free Modules
 ## Very Important!!!!!
-##- **When you want to delete a module, make sure the server is not off when doing so the items from that module can be unregistered!!!!**
+## - **When you want to delete a module, make sure the server is not off when doing so the items from that module can be unregistered!!!!**
 
 - [PlayerModels] | Allows you to add how many models you want from the module config.
 
