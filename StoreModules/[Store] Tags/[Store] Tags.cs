@@ -208,7 +208,6 @@ public class Tags : BasePlugin, IPluginConfig<PluginConfig>
         }
         prefixBuilder.Append(isTeamMessage ? GetLocalizedTeamPrefix(player.TeamNum) : ParseLocalizedColors(Localizer["tag.All"]));
 
-        // Part B: Build the combined tag string with '+' separator
         var formattedTags = equippedTags
             .Where(tag => !string.IsNullOrEmpty(tag.Tag))
             .Select(tag =>
@@ -218,7 +217,16 @@ public class Tags : BasePlugin, IPluginConfig<PluginConfig>
                 return $"{tagColor}{tagText}";
             });
 
-        string combinedTagsString = string.Join($"{ChatColors.White} + ", formattedTags);
+        string separatorFormat = Localizer["multi.tags.separator"];
+
+        if (string.IsNullOrEmpty(separatorFormat))
+        {
+            separatorFormat = " ";
+        }
+
+        string separator = ParseLocalizedColors(separatorFormat);
+
+        string combinedTagsString = string.Join(separator, formattedTags);
         if (!string.IsNullOrEmpty(combinedTagsString))
         {
             combinedTagsString = $"{combinedTagsString} ";

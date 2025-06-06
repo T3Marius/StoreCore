@@ -5,6 +5,7 @@
     "tag.unequipped": "Unequipped tag: {red}{0}",
     "tag.max_equipped": "{red}You can only equip a maximum of {0} tags.",
     "no.tags": "You do not have access to any tags.",
+    "multi.tags.separator": "",
     "tag.All": "{white}[ALL] {orange}● ",
     "tag.Dead": "{red}[DEAD] {orange}● ",
     "tag.T": "{yellow}[T] {orange}● ",
