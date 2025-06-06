@@ -137,22 +137,31 @@ public class Tags : BasePlugin, IPluginConfig<PluginConfig>
 
     public void OnItemEquip(CCSPlayerController player, Dictionary<string, string> item)
     {
-        foreach (var tag in ModuleConfig.Tags.Values)
+        var tagInfo = ModuleConfig.Tags.Values.FirstOrDefault(t => t.Id == item["uniqueid"]);
+
+        if (tagInfo == null) return;
+
+        if (tagInfo.Id.Contains("custom", StringComparison.OrdinalIgnoreCase))
         {
-            if (item["uniqueid"] == tag.Id && item["team"] == player.TeamNum.ToString())
+            Database.SetCustomTag(player.SteamID, tagInfo.Id);
+        }
+        else
+        {
+            _playerEquippedTags.TryGetValue(player.SteamID, out var equippedList);
+            equippedList ??= new List<Tag_Item>();
+
+            if (equippedList.Any(t => t.Id == tagInfo.Id)) return;
+
+            if (equippedList.Count >= 2)
             {
-                if (tag.Id.Contains("custom", StringComparison.OrdinalIgnoreCase))
-                {
-                    ulong steamId = player.SteamID;
-                    Database.SetCustomTag(steamId, tag.Id);
-                }
-                else
-                {
-                    _playerActiveTags[player.SteamID] = tag;
-                    UpdatePlayerScoreboardTag(player, tag);
-                }
-                break;
+                player.PrintToChat(Localizer["prefix"] + Localizer["tag.max_equipped", 2]);
+                return;
             }
+
+            equippedList.Add(tagInfo);
+            _playerEquippedTags[player.SteamID] = equippedList;
+
+            Lib.UpdatePlayerTags(player);
         }
     }
     public void OnItemPurchase(CCSPlayerController player, Dictionary<string, string> item)
@@ -513,39 +522,42 @@ public class Tags : BasePlugin, IPluginConfig<PluginConfig>
             player.PrintToChat(previewMessage);
         });
         menu.AddOption(Localizer.ForPlayer(player, "tag.ConfirmOption"), (p, o) =>
+    {
+        if (string.IsNullOrEmpty(tagName) || string.IsNullOrEmpty(tagColor) || string.IsNullOrEmpty(nameColor) || string.IsNullOrEmpty(chatColor))
         {
-            if (string.IsNullOrEmpty(tagName) || string.IsNullOrEmpty(tagColor) || string.IsNullOrEmpty(nameColor) || string.IsNullOrEmpty(chatColor))
-            {
-                player.PrintToChat(Localizer["prefix"] + Localizer["tag.Error"]);
-                return;
-            }
-            var customTag = new Tag_Item
-            {
-                Id = tag.Id,
-                Name = tag.Name,
-                Tag = tagName,
-                TagColor = tagColor,
-                NameColor = nameColor,
-                ChatColor = chatColor,
-                ScoreboardTag = tagName,
-                Price = tag.Price,
-                Duration = tag.Duration,
-                Flags = tag.Flags,
-                Description = tag.Description
-            };
+            player.PrintToChat(Localizer["prefix"] + Localizer["tag.Error"]);
+            return;
+        }
 
-            _playerActiveTags[player.SteamID] = customTag;
-            UpdatePlayerScoreboardTag(player, customTag);
+        var customTag = new Tag_Item
+        {
+            Id = tag.Id,
+            Name = tag.Name,
+            Tag = tagName,
+            TagColor = tagColor,
+            NameColor = nameColor,
+            ChatColor = chatColor,
+            ScoreboardTag = tagName,
+            Price = tag.Price,
+            Duration = tag.Duration,
+            Flags = tag.Flags,
+            Description = tag.Description
+        };
 
-            ulong steamId = player.SteamID;
-            var tagToSave = customTag;
+        _playerEquippedTags.TryGetValue(p.SteamID, out var equippedList);
+        equippedList ??= new List<Tag_Item>();
 
-            Database.SaveCustomTag(steamId, tagToSave);
+        equippedList.Clear();
 
-            player.PrintToChat(Localizer["prefix"] + Localizer["tag.CustomTagCreated", tagName]);
-            manager.CloseMenu(player);
-        });
+        equippedList.Add(customTag);
+        _playerEquippedTags[p.SteamID] = equippedList;
 
+        Lib.UpdatePlayerTags(p);
+        Database.SaveCustomTag(p.SteamID, customTag);
+
+        p.PrintToChat(Localizer["prefix"] + Localizer["tag.CustomTagCreated", tagName]);
+        manager.CloseMenu(p);
+    });
         manager.OpenMainMenu(player, menu);
     }
     private void UnregisterItems()

@@ -228,30 +228,27 @@ public static class Database
                 if (customTag != null)
                 {
                     customTag.Id = customTagId;
-                    if (Instance.ModuleConfig.Tags.ContainsKey(customTagId) ||
-                        Instance.ModuleConfig.Tags.Values.Any(t => t.Id == customTagId))
+                    var baseTag = Instance.ModuleConfig.Tags.Values.FirstOrDefault(t => t.Id == customTagId);
+                    if (baseTag != null)
                     {
-                        var baseTag = Instance.ModuleConfig.Tags.Values.FirstOrDefault(t => t.Id == customTagId);
-                        if (baseTag != null)
-                        {
-                            customTag.Name = baseTag.Name;
-                            customTag.Price = baseTag.Price;
-                            customTag.Duration = baseTag.Duration;
-                            customTag.Flags = baseTag.Flags;
-                            customTag.Description = baseTag.Description;
-                        }
+                        customTag.Name = baseTag.Name;
+                        customTag.Price = baseTag.Price;
+                        customTag.Duration = baseTag.Duration;
+                        customTag.Flags = baseTag.Flags;
+                        customTag.Description = baseTag.Description;
                     }
 
                     Server.NextFrame(() =>
                     {
                         try
                         {
-                            Instance._playerActiveTags[steamId] = customTag;
+                            var equippedList = new List<Tag_Item> { customTag };
+                            Instance._playerEquippedTags[steamId] = equippedList;
 
                             var player = Utilities.GetPlayers().FirstOrDefault(p => p?.SteamID == steamId);
                             if (player != null && player.IsValid)
                             {
-                                UpdatePlayerScoreboardTag(player, customTag);
+                                Lib.UpdatePlayerTags(player);
                             }
                         }
                         catch (Exception ex)
