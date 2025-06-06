@@ -18,7 +18,7 @@ This plugin allows players to display custom tags in chat and on the scoreboard.
 
 ## Dependencies
 
-- **[CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp)
+- **[CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp)**
 
 > **Important:** The **Custom Tag** feature requires the `T3MenuSharedApi` because it uses text input fields to allow players to create their tag. If you do not use this menu API, the custom tag item will not function correctly.
 
