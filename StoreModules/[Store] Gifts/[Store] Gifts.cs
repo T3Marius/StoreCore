@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using StoreAPI;
 using Microsoft.Extensions.Logging;
+using CounterStrikeSharp.API.Modules.Utils;
 //using System.Linq;
 
 namespace StoreCore;
@@ -37,7 +38,8 @@ public class Gifts : BasePlugin
 
         _giftGiven = true;
 
-        foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid && !p.IsBot))
+        foreach (var player in Utilities.GetPlayers().Where(p =>
+            p.IsValid && !p.IsBot && p.TeamNum != (byte)CsTeam.Spectator)) // 👈 verificare adăugată
         {
             var gift = GetRandomGift();
             if (gift != null)
@@ -55,6 +57,7 @@ public class Gifts : BasePlugin
 
         return HookResult.Continue;
     }
+
 
     private GiftItem? GetRandomGift()
     {
