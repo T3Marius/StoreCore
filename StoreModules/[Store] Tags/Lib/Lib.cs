@@ -127,26 +127,30 @@ public static class Lib
     {
         if (!Instance._playerEquippedTags.TryGetValue(player.SteamID, out var equippedTags) || equippedTags.Count == 0)
         {
-            RemovePlayerScoreboardTag(player);
+            Tags.RemovePlayerScoreboardTag(player);
             return;
         }
 
-        var scoreboardTagBuilder = new StringBuilder();
-        foreach (var tag in equippedTags)
+        var scoreboardTagParts = equippedTags
+            .Select(tag => tag.ScoreboardTag?.Trim())
+            .Where(tag => !string.IsNullOrEmpty(tag));
+
+        string separator = Instance.Localizer["scoreboard.separator"];
+        if (string.IsNullOrEmpty(separator))
         {
-            if (!string.IsNullOrEmpty(tag.ScoreboardTag))
-            {
-                scoreboardTagBuilder.Append(tag.ScoreboardTag);
-            }
+            separator = " ";
         }
+
+        string combinedScoreboardTag = string.Join(separator, scoreboardTagParts);
+
         var masterTag = new Tag_Item
         {
-            ScoreboardTag = scoreboardTagBuilder.ToString(),
+            ScoreboardTag = combinedScoreboardTag,
             NameColor = equippedTags.Last().NameColor,
             ChatColor = equippedTags.Last().ChatColor
         };
 
-        UpdatePlayerScoreboardTag(player, masterTag);
+        Tags.UpdatePlayerScoreboardTag(player, masterTag);
     }
     private static Tag_Item? FindHighestPriorityTag(CCSPlayerController player)
     {
