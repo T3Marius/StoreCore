@@ -77,12 +77,12 @@ Pass = ""
 Port = 3306
 
 [MainConfig]
-MenuType = "screen"           # there are only 2 menus, screen or t3.
-StartCredits = 0          # How much credits a new player will have at start. 
+MenuType = "ScreenMenu"           # there are only 2 menus, ScreenMenu or T3Menu.
+StartCredits = 15000          # How much credits a new player will have at start. 
 PlaytimeInterval = 30     # Each second player will be awarded with credits for activity. Put 0 to disabled it. 
 CreditsPerInterval = 10    # How many credits player gets per activity interval. Put 0 to disable it.
-CreditsPerKill = 10        # How many credits player gets from a kill. Put 0 to disable it.
-CreditsPerRoundWin = 10    # How many credits player gets after winning a round. Put 0 to disable it.
+CreditsPerKill = 5       # How many credits player gets from a kill. Put 0 to disable it.
+CreditsPerRoundWin = 0    # How many credits player gets after winning a round. Put 0 to disable it.
 ShowCreditsOnRoundEnd = true    # If this is enabled, the credits award messages will be in one message at the end of the round.
 IgnoreWarmup = true       # Give credits during warmup? true to not or false to do.
 
@@ -90,7 +90,6 @@ IgnoreWarmup = true       # Give credits during warmup? true to not or false to 
 CreditsPerInterval = { "@css/vip" = 2, "@css/root" = 4 }        # credits multiplier for these flags.
 CreditsPerKill = { "@css/vip" = 2, "@css/root" = 4 }
 CreditsPerRoundWin = { "@css/vip" = 2, "@css/root" = 4 }
-
 
 [Commands]
 OpenStore = ["store", "shop", "market"]          # commands to open the main store.
