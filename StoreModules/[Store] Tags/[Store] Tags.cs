@@ -288,9 +288,6 @@ public class Tags : BasePlugin, IPluginConfig<PluginConfig>
     {
         var nameBuilder = new StringBuilder();
 
-        // NOTE: The combined tag string is now passed directly to um.SetString("messagename", ...),
-        // so we remove the tag application from this specific helper.
-
         if (!string.IsNullOrEmpty(masterTag.NameColor))
         {
             char nameColor = ConvertStringToChatColor(masterTag.NameColor, player.TeamNum);
@@ -303,7 +300,6 @@ public class Tags : BasePlugin, IPluginConfig<PluginConfig>
 
         var finalPlayerName = nameBuilder.ToString();
 
-        // Prepend prefixes like (T), (CT), *DEAD*
         if (!player.PawnIsAlive)
         {
             string deadPrefix = ParseLocalizedColors(Localizer["tag.Dead"]);
