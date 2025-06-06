@@ -141,4 +141,38 @@ public class StoreAPI : IStoreAPI
     {
         _configProvider?.SaveConfig(moduleName, config);
     }
+    public MenuType GetMenuType()
+    {
+        return StoreCore.Instance.Config.MainConfig.MenuType;
+    }
+    public void OpenMainMenu(CCSPlayerController player)
+    {
+        MenuType menu = GetMenuType();
+
+        switch (menu)
+        {
+            case MenuType.ScreenMenu:
+                ScreenMenu.Display(player);
+                break;
+
+            case MenuType.T3Menu:
+                T3Menu.Display(player);
+                break;
+        }
+    }
+    public void OpenInventoryMenu(CCSPlayerController player)
+    {
+        MenuType menu = GetMenuType();
+
+        switch (menu)
+        {
+            case MenuType.ScreenMenu:
+                ScreenMenu.DisplayInventory(player);
+                break;
+
+            case MenuType.T3Menu:
+                T3Menu.DisplayInventory(player);
+                break;
+        }
+    }
 }

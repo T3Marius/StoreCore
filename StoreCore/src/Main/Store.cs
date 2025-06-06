@@ -11,14 +11,13 @@ public class StoreCore : BasePlugin, IPluginConfig<StoreConfig>
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] Core";
-    public override string ModuleVersion => "1.1.2";
+    public override string ModuleVersion => "1.1.3";
     public static StoreCore Instance { get; set; } = new StoreCore();
     public StoreConfig Config { get; set; } = new StoreConfig();
     public Dictionary<ulong, int> PlayerCredits { get; set; } = new Dictionary<ulong, int>();
     public Dictionary<ulong, int> PlayerRoundCredits { get; set; } = new Dictionary<ulong, int>();
     public static StoreAPI STORE_API { get; set; } = new();
     private IT3MenuManager? MenuManager;
-    private bool _isHotReload = false;
 
     public IT3MenuManager? GetMenuManager()
     {
@@ -33,7 +32,6 @@ public class StoreCore : BasePlugin, IPluginConfig<StoreConfig>
     public override void Load(bool hotReload)
     {
         Instance = this;
-        _isHotReload = hotReload;
 
         string configPath = Path.Combine(Server.GameDirectory, "csgo", "addons", "counterstrikesharp", "configs", "plugins", "StoreCore", "StoreCore.toml");
         STORE_API.SetConfigPath(configPath);
@@ -50,11 +48,10 @@ public class StoreCore : BasePlugin, IPluginConfig<StoreConfig>
 
             Commands.Initialize();
 
-            if (!hotReload)
-            {
-                Item.Initialize();
-            }
-            else
+
+            Item.Initialize();
+
+            if (hotReload)
             {
                 Server.NextFrame(() =>
                 {

@@ -145,7 +145,7 @@ public static class ScreenMenu
             ShowDisabledOptionNum = false,
             PrevMenu = prevMenu,
         };
-
+        confirmMenu.AddItem("", (p, o) => { }, true);
         if (item.Duration > 0 && item.IsEquipable)
         {
             string durationText = FormatDuration(item.Duration);
@@ -175,12 +175,6 @@ public static class ScreenMenu
                 p.PrintToChat(Instance.Localizer["prefix"] + Instance.Localizer["item.not.enough", item.Name, item.Price]);
             }
             confirmMenu.Close(p);
-        });
-
-        confirmMenu.AddItem(Instance.Localizer.ForPlayer(player, "confirm.no"), (p, o) =>
-        {
-            confirmMenu.Close(p);
-            DisplayCategoryItems(player, category, prevMenu);
         });
         confirmMenu.AddItem(Instance.Localizer.ForPlayer(player, "item.preview"), (p, o) =>
         {

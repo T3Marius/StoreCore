@@ -19,7 +19,7 @@ public static class Item
 
     public static void Initialize()
     {
-        Instance.AddTimer(2.0f, async () =>
+        Instance.AddTimer(5.0f, async () =>
         {
             if (!Database.IsInitialized)
                 return;

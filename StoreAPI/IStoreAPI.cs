@@ -37,7 +37,7 @@ namespace StoreAPI
         public void RemoveClientCredits(CCSPlayerController player, int credits);
 
         /// <summary>
-        /// Set an amount of credits to a player. Not that the credits you set that much he will have.
+        /// Set an amount of credits to a player. Note that the credits you set that much he will have.
         /// </summary>
         /// <param name="player"></param>
         /// <param name="credits"></param>
@@ -114,5 +114,26 @@ namespace StoreAPI
         /// Save a module's configuration
         /// </summary>
         void SaveModuleConfig<T>(string moduleName, T config) where T : class, new();
+
+        /// <summary>
+        /// Get the current MenuType
+        /// </summary>
+        public MenuType GetMenuType();
+
+        /// <summary>
+        /// Opens the MainMenu
+        /// </summary>
+        public void OpenMainMenu(CCSPlayerController player);
+
+        /// <summary>
+        /// Opens the InvetoryMenu
+        /// </summary>
+        public void OpenInventoryMenu(CCSPlayerController player);
     }
 }
+public enum MenuType
+{
+    ScreenMenu,
+    T3Menu
+}
+

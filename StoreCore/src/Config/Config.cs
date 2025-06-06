@@ -24,7 +24,8 @@ public class Permission_Config
 }
 public class Main_Config
 {
-    public string MenuType { get; set; } = "t3";
+    public MenuType MenuType { get; set; } = MenuType.T3Menu;
+    //public string MenuType { get; set; } = "t3";
     public int StartCredits { get; set; } = 0;
     public float PlaytimeInterval { get; set; } = 60.0f;
     public int CreditsPerInterval { get; set; } = 10;

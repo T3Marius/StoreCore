@@ -138,11 +138,11 @@ public static class Commands
 
         switch (Instance.Config.MainConfig.MenuType)
         {
-            case "t3":
+            case MenuType.T3Menu:
                 T3Menu.DisplayInventory(player);
                 break;
 
-            case "screen":
+            case MenuType.ScreenMenu:
                 ScreenMenu.DisplayInventory(player);
                 break;
         }
@@ -164,10 +164,10 @@ public static class Commands
 
         switch (Instance.Config.MainConfig.MenuType)
         {
-            case "screen":
+            case MenuType.ScreenMenu:
                 ScreenMenu.Display(player);
                 break;
-            case "t3":
+            case MenuType.T3Menu:
                 T3Menu.Display(player);
                 break;
         }
@@ -190,8 +190,7 @@ public static class Commands
 
         switch (Instance.Config.MainConfig.MenuType)
         {
-            case "t3":
-            case "t3menu":
+            case MenuType.T3Menu:
                 var manager = Instance.GetMenuManager();
                 if (manager == null)
                     return;
@@ -213,8 +212,7 @@ public static class Commands
                 });
                 manager.OpenMainMenu(player, t3menu);
                 break;
-            case "screen":
-            case "worldtext":
+            case MenuType.ScreenMenu:
                 Menu menu = new Menu(player, Instance)
                 {
                     Title = Instance.Localizer.ForPlayer(player, "resetcredits<confirm>"),
