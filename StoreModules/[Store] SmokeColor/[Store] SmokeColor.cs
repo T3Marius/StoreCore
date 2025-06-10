@@ -69,18 +69,17 @@ public class SmokeColor : BasePlugin
 
         foreach (var kvp in Config.Smokes)
         {
-            var vip = kvp.Value;
+            var smoke = kvp.Value;
 
             StoreApi.RegisterItem(
-                vip.Id,
-                vip.Name,
+                smoke.Id,
+                smoke.Name,
                 Config.Category,
-                vip.Type,
-                vip.Price,
-                vip.Description,
-                vip.Flags,
-                isEquipable: false,
-                isSellable: false
+                smoke.Type,
+                smoke.Price,
+                smoke.Description,
+                smoke.Flags,
+                duration: smoke.Duration
             );
         }
     }
@@ -91,9 +90,9 @@ public class SmokeColor : BasePlugin
 
         foreach (var kvp in Config.Smokes)
         {
-            var vip = kvp.Value;
+            var smoke = kvp.Value;
 
-            StoreApi.UnregisterItem(vip.Id);
+            StoreApi.UnregisterItem(smoke.Id);
         }
     }
 }

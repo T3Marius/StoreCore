@@ -219,18 +219,17 @@ public class PlayerModels : BasePlugin
 
         foreach (var kvp in Config.PlayerModels)
         {
-            var vip = kvp.Value;
+            var model = kvp.Value;
 
             StoreApi.RegisterItem(
-                vip.Id,
-                vip.Name,
+                model.Id,
+                model.Name,
                 Config.Category,
-                vip.Type,
-                vip.Price,
-                vip.Description,
-                vip.Flags,
-                isEquipable: false,
-                isSellable: false
+                model.Type,
+                model.Price,
+                model.Description,
+                model.Flags,
+                duration: model.Duration
             );
         }
     }
@@ -241,9 +240,9 @@ public class PlayerModels : BasePlugin
 
         foreach (var kvp in Config.PlayerModels)
         {
-            var vip = kvp.Value;
+            var model = kvp.Value;
 
-            StoreApi.UnregisterItem(vip.Id);
+            StoreApi.UnregisterItem(model.Id);
         }
     }
 }

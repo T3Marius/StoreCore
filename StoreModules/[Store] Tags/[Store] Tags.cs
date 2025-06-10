@@ -367,6 +367,7 @@ public class Tags : BasePlugin, IPluginConfig<PluginConfig>
             .Replace("{red}", ChatColors.Red.ToString())
             .Replace("{yellow}", ChatColors.Yellow.ToString())
             .Replace("{blue}", ChatColors.Blue.ToString())
+            .Replace("{darkblue}", ChatColors.DarkBlue.ToString())
             .Replace("{purple}", ChatColors.Purple.ToString())
             .Replace("{magenta}", ChatColors.Magenta.ToString())
             .Replace("{silver}", ChatColors.Silver.ToString())

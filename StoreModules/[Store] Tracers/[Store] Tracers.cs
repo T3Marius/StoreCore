@@ -109,18 +109,17 @@ public class Tracers : BasePlugin
 
         foreach (var kvp in Config.Tracers)
         {
-            var vip = kvp.Value;
+            var tracer = kvp.Value;
 
             StoreApi.RegisterItem(
-                vip.Id,
-                vip.Name,
+                tracer.Id,
+                tracer.Name,
                 Config.Category,
-                vip.Type,
-                vip.Price,
-                vip.Description,
-                vip.Flags,
-                isEquipable: false,
-                isSellable: false
+                tracer.Type,
+                tracer.Price,
+                tracer.Description,
+                tracer.Flags,
+                duration: tracer.Duration
             );
         }
     }
@@ -131,9 +130,9 @@ public class Tracers : BasePlugin
 
         foreach (var kvp in Config.Tracers)
         {
-            var vip = kvp.Value;
+            var trail = kvp.Value;
 
-            StoreApi.UnregisterItem(vip.Id);
+            StoreApi.UnregisterItem(trail.Id);
         }
     }
 }

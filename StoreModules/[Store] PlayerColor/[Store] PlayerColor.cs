@@ -208,18 +208,17 @@ public class PlayerColor : BasePlugin
 
         foreach (var kvp in Config.PlayerColors)
         {
-            var vip = kvp.Value;
+            var color = kvp.Value;
 
             StoreApi.RegisterItem(
-                vip.Id,
-                vip.Name,
+                color.Id,
+                color.Name,
                 Config.Category,
-                vip.Type,
-                vip.Price,
-                vip.Description,
-                vip.Flags,
-                isEquipable: false,
-                isSellable: false
+                color.Type,
+                color.Price,
+                color.Description,
+                color.Flags,
+                duration: color.Duration
             );
         }
     }
@@ -230,9 +229,9 @@ public class PlayerColor : BasePlugin
 
         foreach (var kvp in Config.PlayerColors)
         {
-            var vip = kvp.Value;
+            var color = kvp.Value;
 
-            StoreApi.UnregisterItem(vip.Id);
+            StoreApi.UnregisterItem(color.Id);
         }
     }
 }
