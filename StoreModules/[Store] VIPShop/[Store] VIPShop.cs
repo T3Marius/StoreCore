@@ -32,8 +32,9 @@ public class VIPShop : BasePlugin
             if (item["uniqueid"] == vip.Id)
             {
                 string command = vip.Command.Replace("{steamid}", player.SteamID.ToString());
+                string secondCommand = vip.SecondCommand.Replace("{steamid}", player.SteamID.ToString());
                 Server.ExecuteCommand(command);
-                Logger.LogInformation("Executed command {command} for {steamid}", command, player.SteamID);
+                Server.ExecuteCommand(secondCommand);
             }
         }
     }
@@ -96,6 +97,7 @@ public class Vip_Item
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Command { get; set; } = string.Empty;
+    public string SecondCommand { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string Flags { get; set; } = string.Empty;
