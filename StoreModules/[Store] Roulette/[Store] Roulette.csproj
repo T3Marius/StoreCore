@@ -14,8 +14,9 @@
 
   <ItemGroup>
     <PackageReference Include="CounterStrikeSharp.API" Version="1.0.318" />
-    <PackageReference Include="StoreAPI" Version="1.0.2" />
+    <PackageReference Include="CS2ScreenMenuAPI" Version="3.0.7" />
 	<None Update="lang\**\*.*" CopyToOutputDirectory="PreserveNewest" />
+	<PackageReference Include="StoreAPI" Version="1.0.4" />
   </ItemGroup>
 
 	<ItemGroup>

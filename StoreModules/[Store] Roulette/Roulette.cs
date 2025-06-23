@@ -1,222 +1,321 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Commands;
-using CounterStrikeSharp.API.Modules.Entities;
-using CounterStrikeSharp.API.Modules.Menu;
+using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
-using McMaster.NETCore.Plugins;
+using CS2ScreenMenuAPI;
 using StoreAPI;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.Concurrent;
 using T3MenuSharedApi;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
-namespace StoreCore_Roulette
+namespace StoreCore;
+
+public class Roulette : BasePlugin
 {
-    public partial class Roulette : BasePlugin
+    public override string ModuleAuthor => "T3Marius";
+    public override string ModuleName => "[Store] Roulette";
+    public override string ModuleVersion => "1.0.0";
+
+    private readonly ConcurrentDictionary<ulong, RoulettePlayer> _activeBets = new();
+    private readonly ConcurrentDictionary<ulong, Timer> _animationTimers = new();
+    private readonly Random _random = new();
+    private IT3MenuManager MenuManager = null!;
+    private PluginConfig Config { get; set; } = new();
+    private IStoreAPI StoreApi = null!;
+
+    private IT3MenuManager GetMenuManager()
     {
-        public override string ModuleName => "StoreCore Roulette";
-        public override string ModuleVersion => "0.0.4";
-        public override string ModuleAuthor => "varkit & thanks for the jinn";
+        return new PluginCapability<IT3MenuManager>("t3menu:manager").Get() ?? throw new Exception("T3MenuAPI not found!");
+    }
 
-        public RouletteConfig? Config { get; set; }
-        public IStoreAPI? StoreApi { get; set; }
-        public IT3MenuManager? MenuManager;
-        public string? prefix { get; set; }
-        public Random random = new Random();
+    public override void OnAllPluginsLoaded(bool hotReload)
+    {
+        StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found! Please check plugin.");
+        Config = StoreApi.GetModuleConfig<PluginConfig>("Roulette");
 
-        public record Bet(CCSPlayerController player, Color color, int betamount);
-        public List<Bet> ActiveBets = new List<Bet>();
-
-        public override void OnAllPluginsLoaded(bool hotReload)
+        foreach (var cmd in Config.Commands)
         {
-            StoreApi = IStoreAPI.Capability.Get() ?? throw new Exception("StoreApi not found");
-            Config = StoreApi.GetModuleConfig<RouletteConfig>("Roulette");
-            EnsureConfigLoaded();
-
-            prefix = Config!.Prefix.ReplaceColorTags();
-
-            foreach (var item in Config.CommandsForRoulette)
-            {
-                AddCommand(item, "", RouletteCommand);
-            }
+            AddCommand($"css_{cmd}", "Bet for roulette", Command_Bet);
         }
 
-        public IT3MenuManager? GetMenuManager()
+        switch (StoreApi.GetMenuType())
         {
-            if (MenuManager == null)
-            {
-                MenuManager = new PluginCapability<IT3MenuManager>("t3menu:manager").Get();
-            }
-            return MenuManager;
-        }
-
-        public void RouletteCommand(CCSPlayerController? caller, CommandInfo command)
-        {
-            if (StoreApi == null || Config == null) return;
-            if (caller == null || !caller.IsValid || caller.IsBot || caller.IsHLTV) return;
-
-            var playercredit = GetPlayerCredit(caller);
-
-            if (!int.TryParse(command.GetArg(1), out int betamount) || betamount < Config.MinimumBet || betamount > Config.MaximumBet)
-            {
-                reply(caller, Localizer["Roulette_BetAmountError", Config.MinimumBet, Config.MaximumBet]);
-                return;
-            }
-
-            if (ActiveBets.Any(b => b.player == caller))
-            {
-                reply(caller, Localizer["Roulette_AlreadyBet"]);
-                return;
-            }
-
-            if (playercredit < betamount)
-            {
-                reply(caller, Localizer["Roulette_NotEnoughMoney"]);
-                return;
-            }
-
-            RouletteMenu(caller, betamount);
-        }
-
-        public void RouletteMenu(CCSPlayerController player, int betamount)
-        {
-            var manager = GetMenuManager();
-            if (manager == null || Config == null) return;
-
-            var LocalizedTitle = Localizer["RouletteTitle"];
-            var L_Red = Localizer["Red"];
-            var L_Blue = Localizer["Blue"];
-            var L_Green = Localizer["Green"];
-
-            IT3Menu menu = manager.CreateMenu(
-                $"<img src='https://raw.githubusercontent.com/vulikit/varkit-resources/refs/heads/main/rulet1.gif'> " +
-                $"<font color='#4bd932'>{LocalizedTitle}</font> <font color='#FFFFFF'>|</font> " +
-                $"<font color='#3250d9'>{betamount}</font> " +
-                $"<img src='https://raw.githubusercontent.com/vulikit/varkit-resources/refs/heads/main/rulet1.gif'>",
-                isSubMenu: false
-            );
-
-            menu.AddOption($"<font color='red'>{L_Red}</font> <font color='#d9d632'>(x{Config.Red["multiplier"]})</font>", (p, i) =>
-            {
-                BetOnColor(Color.Red, p, betamount);
-            });
-
-            menu.AddOption($"<font color='blue'>{L_Blue}</font> <font color='#d9d632'>(x{Config.Blue["multiplier"]})</font>", (p, i) =>
-            {
-                BetOnColor(Color.Blue, p, betamount);
-            });
-
-            menu.AddOption($"<font color='green'>{L_Green}</font> <font color='#d9d632'>(x{Config.Green["multiplier"]})</font>", (p, i) =>
-            {
-                BetOnColor(Color.Green, p, betamount);
-            });
-
-            manager.OpenMainMenu(player, menu);
-        }
-
-        public void BetOnColor(Color color, CCSPlayerController player, int amount)
-        {
-            var manager = GetMenuManager();
-            if (manager == null || Config == null || StoreApi == null) return;
-
-            var L_Red = Localizer["Red"];
-            var L_Blue = Localizer["Blue"];
-            var L_Green = Localizer["Green"];
-
-            GivePlayerCredit(player, -amount); //removes credit
-            ActiveBets.Add(new Bet(player, color, amount));
-
-            string colorName = color == Color.Red ? "{red}" + $"{L_Red}" :
-                              color == Color.Blue ? "{blue}" + $"{L_Blue}" :
-                              "{green}" + $"{L_Green}";
-
-            if (Config.AccounceEveryone)
-            {
-                Server.PrintToChatAll(prefix + Localizer["Roulette_Announce", player.PlayerName, colorName, amount]);
-            }
-
-            reply(player, Localizer["Roulette_BetOnColor", colorName, amount]);
-            manager.CloseMenu(player);
-        }
-
-        public int GetPlayerCredit(CCSPlayerController player)
-        {
-            if (StoreApi == null) return 0;
-            return StoreApi.GetClientCredits(player);
-        }
-
-        public void GivePlayerCredit(CCSPlayerController player, int amount)
-        {
-            if (StoreApi == null) return;
-            StoreApi.AddClientCredits(player, amount);
-        }
-
-        public void reply(CCSPlayerController player, string m)
-        {
-            player.PrintToChat(prefix + m);
-        }
-
-        [GameEventHandler]
-        public HookResult RoundEnd(EventRoundEnd @event, GameEventInfo info)
-        {
-            if (ActiveBets.Count == 0 || Config == null) return HookResult.Continue;
-
-            var L_Red = Localizer["Red"];
-            var L_Blue = Localizer["Blue"];
-            var L_Green = Localizer["Green"];
-            Color winningColor = RoundEndWinner();
-            string colorName = winningColor == Color.Red ? "{Config.Red}" + $"{L_Red}" :
-                              winningColor == Color.Blue ? "{Config.blue}" + $"{L_Blue}" :
-                              "{Config.green}" + $"{L_Green}";
-
-            Server.PrintToChatAll(prefix + Localizer["Roulette_Winner", colorName]);
-            GiveCreditsToWinners(winningColor);
-            ActiveBets.Clear();
-            return HookResult.Continue;
-        }
-
-        private Color RoundEndWinner()
-        {
-            EnsureConfigLoaded();
-            int totalChance = Config!.Red["chance"] + Config!.Blue["chance"] + Config!.Green["chance"];
-            int roll = random.Next(1, totalChance + 1);
-
-            if (roll <= Config.Red["chance"]) return Color.Red;
-            if (roll <= Config.Red["chance"] + Config.Blue["chance"]) return Color.Blue;
-            return Color.Green;
-        }
-
-        private void GiveCreditsToWinners(Color color)
-        {
-            if (StoreApi == null || Config == null) return;
-
-            int multiplier = color == Color.Red ? Config.Red["multiplier"] :
-                            color == Color.Blue ? Config.Blue["multiplier"] :
-                            Config.Green["multiplier"];
-
-            foreach (var bet in ActiveBets.Where(b => b.color == color))
-            {
-                if (!bet.player.IsValid) continue;
-
-                int winnings = bet.betamount * multiplier;
-                GivePlayerCredit(bet.player, winnings);
-                reply(bet.player, Localizer["Roulette_YouWon", winnings]);
-            }
-        }
-
-        private void EnsureConfigLoaded()
-        {
-            if (Config == null)
-            {
-                throw new InvalidOperationException("Config was not loaded. Make sure StoreApi returned a valid config.");
-            }
+            case MenuType.T3Menu:
+                GetMenuManager();
+                break;
         }
     }
+
+    [CommandHelper(minArgs: 1, usage: "<betamount>")]
+    public void Command_Bet(CCSPlayerController? player, CommandInfo info)
+    {
+        if (player == null) return;
+
+        if (_activeBets.ContainsKey(player.SteamID))
+        {
+            info.ReplyToCommand(Localizer["prefix"] + Localizer["already.bet"]);
+            return;
+        }
+
+        if (!int.TryParse(info.GetArg(1), out int betAmount))
+        {
+            info.ReplyToCommand(Localizer["prefix"] + Localizer["invalid.bet.amount"]);
+            return;
+        }
+
+        int credits = StoreApi.GetClientCredits(player);
+        if (credits < betAmount)
+        {
+            info.ReplyToCommand(Localizer["prefix"] + Localizer["no.credits"]);
+            return;
+        }
+
+        if (betAmount < Config.MinBet)
+        {
+            info.ReplyToCommand(Localizer["prefix"] + Localizer["min.bet", Config.MinBet]);
+            return;
+        }
+
+        if (betAmount > Config.MaxBet)
+        {
+            info.ReplyToCommand(Localizer["prefix"] + Localizer["max.bet", Config.MaxBet]);
+            return;
+        }
+
+        var menuType = StoreApi.GetMenuType();
+
+        if (menuType == MenuType.ScreenMenu)
+        {
+            OpenColorChoiceMenu_Screen(player, betAmount);
+        }
+        else
+        {
+            OpenColorChoiceMenu_T3(player, betAmount);
+        }
+    }
+
+    private void PlaceBet(CCSPlayerController player, string color, int amount)
+    {
+        StoreApi.RemoveClientCredits(player, amount);
+
+        var bet = new RoulettePlayer
+        {
+            Addicted = player,
+            BetAmount = amount,
+            Color = color
+        };
+
+        _activeBets[player.SteamID] = bet;
+        player.PrintToChat(Localizer["prefix"] + Localizer["bet.placed", amount, GetChatColorText(color)]);
+
+        string winningColor = DetermineRouletteResult();
+        var menuType = StoreApi.GetMenuType();
+
+        if (menuType == MenuType.ScreenMenu)
+        {
+            StartRouletteAnimation_Screen(player, bet, winningColor);
+        }
+        else
+        {
+            StartRouletteAnimation_T3(player, bet, winningColor);
+        }
+    }
+
+    #region T3Menu Implementation
+    private void OpenColorChoiceMenu_T3(CCSPlayerController player, int betAmount)
+    {
+        IT3Menu menu = MenuManager.CreateMenu(Localizer.ForPlayer(player, "betting.menu", betAmount));
+        menu.AddOption(Localizer.ForPlayer(player, "red.option"), (p, o) => PlaceBet(p, "Red", betAmount));
+        menu.AddOption(Localizer.ForPlayer(player, "black.option"), (p, o) => PlaceBet(p, "Black", betAmount));
+        menu.AddOption(Localizer.ForPlayer(player, "green.option"), (p, o) => PlaceBet(p, "Green", betAmount));
+        MenuManager.OpenMainMenu(player, menu);
+    }
+
+    private void StartRouletteAnimation_T3(CCSPlayerController player, RoulettePlayer bet, string winningColor)
+    {
+        IT3Menu animationMenu = MenuManager.CreateMenu(Localizer.ForPlayer(player, "spinning.menu"));
+        animationMenu.IsExitable = false;
+        animationMenu.AddOption(Localizer.ForPlayer(player, "your.bet", bet.BetAmount, GetMenuColorText(bet.Color)), (p, o) => { }, true);
+        MenuManager.OpenMainMenu(player, animationMenu);
+
+        int animationSteps = 0;
+        string[] spinStates = { "Red", "Black", "Green" };
+        Timer? animationTimer = null;
+
+        animationTimer = AddTimer(0.15f, () =>
+        {
+            if (!player.IsValid || !_activeBets.ContainsKey(player.SteamID))
+            {
+                animationTimer?.Kill();
+                _animationTimers.TryRemove(player.SteamID, out _);
+                return;
+            }
+
+            animationSteps++;
+            if (animationSteps >= 20)
+            {
+                animationTimer?.Kill();
+                _animationTimers.TryRemove(player.SteamID, out _);
+                animationMenu.Title = Localizer.ForPlayer(player, "spinning.menu") + $" {GetMenuColorText(winningColor)}";
+                MenuManager.Refresh();
+                AddTimer(1.5f, () => ShowRouletteResult(player, bet, winningColor));
+            }
+            else
+            {
+                string currentSpin = spinStates[_random.Next(spinStates.Length)];
+                animationMenu.Title = Localizer.ForPlayer(player, "spinning.menu") + $" {GetMenuColorText(currentSpin)}";
+                MenuManager.Refresh();
+            }
+        }, TimerFlags.REPEAT);
+        _animationTimers[player.SteamID] = animationTimer;
+    }
+    #endregion
+
+    #region ScreenMenu Implementation
+    private void OpenColorChoiceMenu_Screen(CCSPlayerController player, int betAmount)
+    {
+        var menu = new Menu(player, this)
+        {
+            Title = Localizer.ForPlayer(player, "betting.menu", betAmount)
+        };
+        menu.AddItem(Localizer.ForPlayer(player, "red.option.screen"), (p, o) => PlaceBet(p, "Red", betAmount));
+        menu.AddItem(Localizer.ForPlayer(player, "black.option.screen"), (p, o) => PlaceBet(p, "Black", betAmount));
+        menu.AddItem(Localizer.ForPlayer(player, "green.option.screen"), (p, o) => PlaceBet(p, "Green", betAmount));
+        menu.Display();
+    }
+
+    private void StartRouletteAnimation_Screen(CCSPlayerController player, RoulettePlayer bet, string winningColor)
+    {
+        var animationMenu = new Menu(player, this)
+        {
+            Title = Localizer.ForPlayer(player, "spinning.menu")
+        };
+        animationMenu.AddItem(Localizer.ForPlayer(player, "your.bet", bet.BetAmount, bet.Color), (p, o) => { }, true);
+        animationMenu.Display();
+
+        int animationSteps = 0;
+        string[] spinStates = { "Red", "Black", "Green" };
+        Timer? animationTimer = null;
+
+        animationTimer = AddTimer(0.15f, () =>
+        {
+            if (!player.IsValid || !_activeBets.ContainsKey(player.SteamID))
+            {
+                animationTimer?.Kill();
+                _animationTimers.TryRemove(player.SteamID, out _);
+                return;
+            }
+
+            animationSteps++;
+            if (animationSteps >= 20)
+            {
+                animationTimer?.Kill();
+                _animationTimers.TryRemove(player.SteamID, out _);
+                animationMenu.Title = Localizer.ForPlayer(player, "spinning.menu") + $" {winningColor}";
+                animationMenu.Refresh();
+                AddTimer(1.5f, () =>
+                {
+                    animationMenu.Close(player);
+                    ShowRouletteResult(player, bet, winningColor);
+                });
+            }
+            else
+            {
+                string currentSpin = spinStates[_random.Next(spinStates.Length)];
+                animationMenu.Title = Localizer.ForPlayer(player, "spinning.menu") + $" {currentSpin}";
+                animationMenu.Refresh();
+            }
+        }, TimerFlags.REPEAT);
+        _animationTimers[player.SteamID] = animationTimer;
+    }
+    #endregion
+
+    #region Shared Logic
+    private void ShowRouletteResult(CCSPlayerController player, RoulettePlayer bet, string winningColor)
+    {
+        if (StoreApi.GetMenuType() == MenuType.T3Menu)
+        {
+            AddTimer(2.0f, () => MenuManager.CloseMenu(player));
+        }
+
+        string result = winningColor;
+        bool won = result == bet.Color;
+        int payout = won ? (int)CalculatePayout(bet.BetAmount, result) : 0;
+
+        if (won)
+        {
+            StoreApi.AddClientCredits(player, payout);
+            player.PrintToChat(Localizer["prefix"] + Localizer["you.won", GetChatColorText(result), payout]);
+        }
+        else
+        {
+            player.PrintToChat(Localizer["prefix"] + Localizer["you.lost", GetChatColorText(result)]);
+        }
+        _activeBets.TryRemove(player.SteamID, out _);
+    }
+
+    private string DetermineRouletteResult()
+    {
+        double roll = _random.NextDouble() * 100;
+        if (roll < Config.RedChance) return "Red";
+        if (roll < Config.RedChance + Config.BlackChance) return "Black";
+        return "Green";
+    }
+
+    private double CalculatePayout(int betAmount, string result)
+    {
+        return result switch
+        {
+            "Red" => betAmount * Config.RedMultiplier,
+            "Black" => betAmount * Config.BlackMultiplier,
+            "Green" => betAmount * Config.GreenMultiplier,
+            _ => 0
+        };
+    }
+
+    private string GetMenuColorText(string color)
+    {
+        return color switch
+        {
+            "Red" => $"<font color='red'>{Localizer["red"]}</font>",
+            "Black" => $"<font color='#606060'>{Localizer["black"]}</font>",
+            "Green" => $"<font color='green'>{Localizer["green"]}</font>",
+            _ => color
+        };
+    }
+
+    private string GetChatColorText(string color)
+    {
+        return color switch
+        {
+            "Red" => $" {ChatColors.Red}{Localizer["red"]}{ChatColors.Default}",
+            "Black" => $" {ChatColors.Silver}{Localizer["black"]}{ChatColors.Default}",
+            "Green" => $" {ChatColors.Green}{Localizer["green"]}{ChatColors.Default}",
+            _ => color
+        };
+    }
+    #endregion
+}
+
+public class RoulettePlayer
+{
+    public required CCSPlayerController Addicted { get; init; }
+    public required int BetAmount { get; init; }
+    public required string Color { get; init; }
+}
+
+public class PluginConfig
+{
+    public int MinBet { get; set; } = 10;
+    public int MaxBet { get; set; } = 500;
+    public List<string> Commands { get; set; } = ["roulette"];
+    public double RedChance { get; set; } = 45.0;
+    public double BlackChance { get; set; } = 45.0;
+    public double GreenChance { get; set; } = 10.0;
+    public double RedMultiplier { get; set; } = 2;
+    public double BlackMultiplier { get; set; } = 2;
+    public double GreenMultiplier { get; set; } = 6;
 }
