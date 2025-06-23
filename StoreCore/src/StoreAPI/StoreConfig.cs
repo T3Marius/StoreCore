@@ -1,8 +1,6 @@
-﻿using System.Text.Json;
-using System.IO;
-using System;
-using StoreAPI;
+﻿using StoreAPI;
 using Microsoft.Extensions.Logging;
+using Tomlet;
 
 namespace StoreCore;
 
@@ -19,7 +17,7 @@ public class StoreModuleConfig : IStoreConfig
 
     public T LoadConfig<T>(string moduleName) where T : class, new()
     {
-        string configPath = Path.Combine(_modulesDirectory, $"{moduleName}.json");
+        string configPath = Path.Combine(_modulesDirectory, $"{moduleName}.toml");
         if (!File.Exists(configPath))
         {
             var defaultConfig = new T();
@@ -29,29 +27,28 @@ public class StoreModuleConfig : IStoreConfig
 
         try
         {
-            string jsonContent = File.ReadAllText(configPath);
-            T? config = JsonSerializer.Deserialize<T>(jsonContent);
-            return config ?? new T();
+            using var fs = new FileStream(configPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var sr = new StreamReader(fs);
+            string fileContent = sr.ReadToEnd();
+            return TomletMain.To<T>(fileContent);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            StoreCore.Instance.Logger.LogError($"Error loading module {moduleName} config: {ex.Message}");
+            StoreCore.Instance.Logger.LogError("Fallback to default values for this config to prevent crashing.");
             return new T();
         }
     }
 
     public void SaveConfig<T>(string moduleName, T config) where T : class, new()
     {
-        string configPath = Path.Combine(_modulesDirectory, $"{moduleName}.json");
+        string configPath = Path.Combine(_modulesDirectory, $"{moduleName}.toml");
         try
         {
             Directory.CreateDirectory(_modulesDirectory);
 
-            string jsonContent = JsonSerializer.Serialize(config, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
-
-            File.WriteAllText(configPath, jsonContent);
+            string tomlContent = TomletMain.TomlStringFrom(config);
+            File.WriteAllText(configPath, tomlContent);
         }
         catch (Exception ex)
         {
