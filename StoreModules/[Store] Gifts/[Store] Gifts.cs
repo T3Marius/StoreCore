@@ -11,7 +11,7 @@ public class Gifts : BasePlugin
 {
     public override string ModuleName => "[Store] Gifts";
     public override string ModuleAuthor => "GSM-RO";
-    public override string ModuleVersion => "1.0.1";
+    public override string ModuleVersion => "1.0.2";
 
     public IStoreAPI? StoreApi;
     public GiftPluginConfig Config { get; set; } = new();
@@ -24,10 +24,9 @@ public class Gifts : BasePlugin
         Config = StoreApi.GetModuleConfig<GiftPluginConfig>("Gifts") ?? new GiftPluginConfig();
         StoreApi.SaveModuleConfig("Gifts", Config);
 
-        // Cadouri oferite când jocul anunță ultima rundă a unei jumătăți (inclusiv finalul meciului)
+        
         RegisterEventHandler<EventRoundAnnounceLastRoundHalf>(OnLastRoundAnnounce);
 
-        // Resetăm flagul la schimbarea hărții
         RegisterListener<Listeners.OnMapStart>(name => _giftGiven = false);
     }
 
@@ -39,18 +38,20 @@ public class Gifts : BasePlugin
         _giftGiven = true;
 
         foreach (var player in Utilities.GetPlayers().Where(p =>
-            p.IsValid && !p.IsBot && p.TeamNum != (byte)CsTeam.Spectator)) // 👈 verificare adăugată
+            p.IsValid && !p.IsBot && p.TeamNum != (byte)CsTeam.Spectator))
         {
             var gift = GetRandomGift();
             if (gift != null)
             {
                 GiveGiftToPlayer(player, gift);
-                player.ExecuteClientCommand("sounds/ui/item_drop_card_reward.vsnd_c");
+                if (!string.IsNullOrWhiteSpace(Config.GiftSound))
+                        {
+                            player.ExecuteClientCommand($"play {Config.GiftSound}");
+                        }
                 player.PrintToCenter($"🎁 You received a gift: {gift.Name}!");
-                player.PrintToChat($"[Store] ******************************");
-                player.PrintToChat($"[Store] 🎁 You received a gift: {gift.Name}!");
-                player.PrintToChat($"[Store] ******************************");
-                player.ExecuteClientCommand("play sounds/ui/item_drop1_common.vsnd_c");
+                player.PrintToChat($"{ChatColors.Green}[Store]{ChatColors.Default} {ChatColors.Yellow}******************************");
+                player.PrintToChat($"{ChatColors.Green}[Gifts]{ChatColors.Default} You received: {ChatColors.Green}{gift.Name}{ChatColors.Default}!");
+                player.PrintToChat($"{ChatColors.Green}[Store]{ChatColors.Default} {ChatColors.Yellow}******************************");
                 Logger.LogInformation($"[Gifts] {player.PlayerName} ({player.SteamID}) received: {gift.Name} [{gift.Type}:{gift.Value}]");
             }
         }
@@ -109,6 +110,7 @@ public class Gifts : BasePlugin
 
 public class GiftPluginConfig
 {
+    public string GiftSound { get; set; } = "sounds/ui/coin_pickup_01.vsnd_c";
     public List<GiftItem> Gifts { get; set; } = new()
     {
         new GiftItem { Name = "100 Credits", Type = "credits", Value = "100", Chance = 40 },
