@@ -6,6 +6,8 @@ using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Memory;
+using System.Collections.Concurrent;
+using CounterStrikeSharp.API.Modules.Utils;
 
 namespace StoreCore;
 
@@ -13,13 +15,15 @@ public class Abilities : BasePlugin
 {
     public override string ModuleAuthor => "T3Marius";
     public override string ModuleName => "[Store] Abilities";
-    public override string ModuleVersion => "1.0.1";
-    public IStoreAPI? StoreApi;
+    public override string ModuleVersion => "1.0.2";
+    public IStoreAPI? StoreApi = null!;
 
     public Timer? SpeedTimer;
     public Timer? GravityTimer;
     public Timer? GodTimer;
     public Timer? NoClipTimer;
+
+    private ConcurrentDictionary<ulong, bool> _playerSmokeTeleport { get; set; } = new();
 
     public PluginConfig Config { get; set; } = new PluginConfig();
     public override void OnAllPluginsLoaded(bool hotReload)
@@ -32,7 +36,46 @@ public class Abilities : BasePlugin
         StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
 
         RegisterEventHandler<EventRoundStart>(OnRoundStart);
+        RegisterEventHandler<EventSmokegrenadeDetonate>(OnSmokeDetonate, HookMode.Post);
+        RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
 
+    }
+    public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo info)
+    {
+        CCSPlayerController? player = @event.Userid;
+        if (player == null)
+            return HookResult.Continue;
+
+        if (_playerSmokeTeleport.ContainsKey(player.SteamID))
+            _playerSmokeTeleport.TryRemove(player.SteamID, out _);
+
+        return HookResult.Continue;
+    }
+    public HookResult OnSmokeDetonate(EventSmokegrenadeDetonate @event, GameEventInfo info)
+    {
+        CCSPlayerController? player = @event.Userid;
+        if (player == null || player.IsBot)
+            return HookResult.Continue;
+
+        if (_playerSmokeTeleport.TryGetValue(player.SteamID, out bool isBought))
+        {
+            if (isBought)
+            {
+                var smokePos = new Vector(@event.X, @event.Y, @event.Z);
+
+                Server.NextFrame(() =>
+                {
+                    if (smokePos != null)
+                        AddTimer(0.5f, () => player.PlayerPawn.Value?.Teleport(smokePos, new QAngle(), new Vector()));
+
+
+                    _playerSmokeTeleport.TryRemove(player.SteamID, out _);
+                });
+
+            }
+        }
+
+        return HookResult.Continue;
     }
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
@@ -137,6 +180,25 @@ public class Abilities : BasePlugin
                 }
             }
         }
+        if (item["uniqueid"] == Config.SmokeTeleport.Id)
+        {
+            if (!_playerSmokeTeleport.ContainsKey(player.SteamID))
+            {
+                _playerSmokeTeleport.TryAdd(player.SteamID, true);
+
+                var allWeapons = pawn.WeaponServices?.MyWeapons;
+                if (allWeapons == null)
+                    return;
+
+                foreach (var weapon in allWeapons)
+                {
+                    if (weapon.Value?.DesignerName != "weapon_smokegrenade")
+                    {
+                        Server.NextFrame(() => player.GiveNamedItem("weapon_smokegrenade"));
+                    }
+                }
+            }
+        }
     }
     private void ChangeMovetype(CBasePlayerPawn pawn, MoveType_t movetype)
     {
@@ -214,6 +276,16 @@ public class Abilities : BasePlugin
                 isEquipable: false
                 );
         }
+        StoreApi.RegisterItem(
+            Config.SmokeTeleport.Id,
+            Config.SmokeTeleport.Name,
+            Config.Category,
+            Config.SmokeTeleport.Type,
+            Config.SmokeTeleport.Price,
+            Config.SmokeTeleport.Description,
+            Config.SmokeTeleport.Flags,
+            isEquipable: false
+        );
     }
     public void UnregisterItems()
     {
@@ -233,6 +305,7 @@ public class Abilities : BasePlugin
         {
             StoreApi?.UnregisterItem(item.Id);
         }
+        StoreApi?.UnregisterItem(Config.SmokeTeleport.Id);
     }
 
 }
@@ -299,6 +372,15 @@ public class PluginConfig
             }
         }
     };
+    public SmokeTeleport_Item SmokeTeleport { get; set; } = new SmokeTeleport_Item()
+    {
+        Id = "smoke_teleport",
+        Name = "Smoke Teleport",
+        Description = "Teleports you where the smoke detoanted.",
+        Flags = "",
+        Type = "abilities",
+        Price = 1500
+    };
 }
 public class Speed_Item
 {
@@ -337,6 +419,15 @@ public class God_Item
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public float Timer { get; set; } = 0;
+    public string Description { get; set; } = string.Empty;
+    public string Flags { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public int Price { get; set; } = 0;
+}
+public class SmokeTeleport_Item
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string Flags { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
