@@ -207,13 +207,13 @@ public class PluginConfig
             "1", new WeaponModel_Item
             {
                 Id = "knife_model",
-                Name = "Test Knife Model",
-                Description = "A knife model only for test",
-                Price = 0,
+                Name = "Morrow Mind Knife",
+                Description = "A knife model , cool one!",
+                Price = 500,
                 Duration = 0,
                 Type = "weaponmodel",
                 Flags = "",
-                Model = "weapon_knife:weapons/models/healthshot/weapon_healthshot.vmdl"
+                Model = "weapon_knife:models/weapons/nozb1/knife/morrowind/morrowind.vmdl"
             }
         },
         {
@@ -226,7 +226,7 @@ public class PluginConfig
                 Duration = 0,
                 Type = "weaponmodel",
                 Flags = "",
-                Model = "weapon_ak47:models/weapons/custom_ak/ak47_custom.vmdl"
+                Model = "weapon_ak47:models/weapons/nozb1/ak4x/weapon_ak4x.vmdl"
             }
         }
     };
