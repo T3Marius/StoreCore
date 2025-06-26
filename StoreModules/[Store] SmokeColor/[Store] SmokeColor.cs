@@ -23,10 +23,6 @@ public class SmokeColor : BasePlugin
 
         RegisterItems();
     }
-    public override void Unload(bool hotReload)
-    {
-        UnregisterItems();
-    }
     public void OnEntitySpawned(CEntityInstance entity)
     {
         string designerName = entity.DesignerName;
@@ -81,18 +77,6 @@ public class SmokeColor : BasePlugin
                 smoke.Flags,
                 duration: smoke.Duration
             );
-        }
-    }
-    public void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var kvp in Config.Smokes)
-        {
-            var smoke = kvp.Value;
-
-            StoreApi.UnregisterItem(smoke.Id);
         }
     }
 }

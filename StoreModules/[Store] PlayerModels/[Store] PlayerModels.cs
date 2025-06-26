@@ -41,10 +41,6 @@ public class PlayerModels : BasePlugin
             }
         });
     }
-    public override void Unload(bool hotReload)
-    {
-        UnregisterItems();
-    }
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
@@ -231,18 +227,6 @@ public class PlayerModels : BasePlugin
                 model.Flags,
                 duration: model.Duration
             );
-        }
-    }
-    public void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var kvp in Config.PlayerModels)
-        {
-            var model = kvp.Value;
-
-            StoreApi.UnregisterItem(model.Id);
         }
     }
 }

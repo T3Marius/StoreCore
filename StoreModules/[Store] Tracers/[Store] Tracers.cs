@@ -27,10 +27,6 @@ public class Tracers : BasePlugin
 
         RegisterItems();
     }
-    public override void Unload(bool hotReload)
-    {
-        UnregisterItems();
-    }
     public HookResult OnBulletImpact(EventBulletImpact @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
@@ -121,18 +117,6 @@ public class Tracers : BasePlugin
                 tracer.Flags,
                 duration: tracer.Duration
             );
-        }
-    }
-    public void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var kvp in Config.Tracers)
-        {
-            var trail = kvp.Value;
-
-            StoreApi.UnregisterItem(trail.Id);
         }
     }
 }

@@ -32,10 +32,6 @@ public class WeaponModels : BasePlugin
         StoreApi.OnPlayerSellItem += OnSellItem;
         StoreApi.OnPlayerUnequipItem += OnUnequipItem;
     }
-    public override void Unload(bool hotReload)
-    {
-        UnregisterItems();
-    }
     private void OnSellItem(CCSPlayerController player, Dictionary<string, string> item)
     {
         if (player == null)
@@ -187,13 +183,6 @@ public class WeaponModels : BasePlugin
                 weapon.Flags,
                 duration: weapon.Duration
             );
-        }
-    }
-    private void UnregisterItems()
-    {
-        foreach (var weapon in Config.WeaponModels.Values)
-        {
-            StoreApi.UnregisterItem(weapon.Id);
         }
     }
 }

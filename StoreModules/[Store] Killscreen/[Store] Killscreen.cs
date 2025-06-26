@@ -24,10 +24,6 @@ public class Killscreen : BasePlugin
 
         StoreApi.OnItemPreview += OnItemPreview;
     }
-    public override void Unload(bool hotReload)
-    {
-        UnregisterItems();
-    }
     public HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
         CCSPlayerController? victim = @event.Userid;
@@ -89,18 +85,6 @@ public class Killscreen : BasePlugin
                 killScreen.Description,
                 killScreen.Flags,
                 duration: killScreen.Duration);
-        }
-    }
-    public void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var kvp in Config.Killscreens)
-        {
-            var killScreen = kvp.Value;
-
-            StoreApi.UnregisterItem(killScreen.Id);
         }
     }
 }

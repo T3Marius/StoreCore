@@ -86,17 +86,6 @@ public class HitSounds : BasePlugin
                 hitSound.Duration);
         }
     }
-    public void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var kvp in Config.HitSounds)
-        {
-            var hitSound = kvp.Value;
-            StoreApi.UnregisterItem(hitSound.Id);
-        }
-    }
 }
 public class PluginConfig
 {

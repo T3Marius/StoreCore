@@ -211,7 +211,6 @@ public class Bhop : BasePlugin
                 SetBunnyhop(player, false);
             }
         }
-        UnregisterItems();
     }
 
     private void RegisterItems()
@@ -233,18 +232,6 @@ public class Bhop : BasePlugin
                 bhop.Flags,
                 duration: bhop.Duration
             );
-        }
-    }
-    private void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var kvp in Config.Bhops)
-        {
-            var bhop = kvp.Value;
-
-            StoreApi.UnregisterItem(bhop.Id);
         }
     }
 

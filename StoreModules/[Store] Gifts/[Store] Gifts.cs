@@ -3,7 +3,6 @@ using CounterStrikeSharp.API.Core;
 using StoreAPI;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Utils;
-//using System.Linq;
 
 namespace StoreCore;
 
