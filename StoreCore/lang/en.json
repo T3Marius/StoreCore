@@ -92,5 +92,7 @@
     "player.aleardy.vip": "{red}{0}{silver} is aleardy vip.",
     "player.not.vip": "{red}{0}{silver} is not a vip!",
     "vip.added": "Succesfully set {red}{0}{silver} vip status!",
-    "vip.removed": "Succesfully removed vip status from {red}{0}{silver}."
+    "vip.removed": "Succesfully removed vip status from {red}{0}{silver}.",
+    "starting.store.cleanup": "Starting store cleanup...",
+    "store.cleanup.complete": "Store clean up completed. Please restart the server."
 }

@@ -7,6 +7,7 @@ using CounterStrikeSharp.API;
 using CS2ScreenMenuAPI;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace StoreCore;
 
@@ -56,6 +57,10 @@ public static class Commands
         foreach (var cmd in Commands.RemoveVip)
         {
             AddCmd($"css_{cmd}", "Removes vip from a player", Command_RemoveVip);
+        }
+        foreach (var cmd in Commands.Cleanup)
+        {
+            AddCmd($"css_{cmd}", "Clean up orphaned items from the store", Command_StoreCleanup);
         }
     }
     [CommandHelper(minArgs: 1, usage: "<playername>")]
@@ -414,5 +419,37 @@ public static class Commands
         {
             Server.PrintToChatAll(Instance.Localizer["prefix"] + Instance.Localizer["credits.set.multiple", adminName, credits, targetPlayers.Count]);
         }
+    }
+    [RequiresPermissions("@css/root")]
+    public static void Command_StoreCleanup(CCSPlayerController? player, CommandInfo info)
+    {
+        if (Instance.Config.Permissions.Cleanup.Count > 0 && !Instance.Config.Permissions.Cleanup.Any(flag =>
+        AdminManager.PlayerHasPermissions(player, flag)))
+        {
+            info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["no.permission"]);
+            return;
+        }
+
+        info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["starting.store.cleanup"]);
+
+        Task.Run(async () =>
+        {
+            try
+            {
+                await Instance.CleanupOrphanedItemsAsync();
+
+                Server.NextFrame(() =>
+                {
+                    info.ReplyToCommand(Instance.Localizer["prefix"] + Instance.Localizer["store.cleanup.complete"]);
+                });
+            }
+            catch (Exception ex)
+            {
+                Server.NextFrame(() =>
+                {
+                    Instance.Logger.LogError("Store cleanup failed: {0}", ex.Message);
+                });
+            }
+        });
     }
 }
