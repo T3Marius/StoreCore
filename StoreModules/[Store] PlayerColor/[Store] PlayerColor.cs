@@ -34,10 +34,6 @@ public class PlayerColor : BasePlugin
         StoreApi.OnPlayerSellItem += OnPlayerSellItem;
         StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
     }
-    public override void Unload(bool hotReload)
-    {
-        UnregisterItems();
-    }
     public void OnPlayerPurchaseItem(CCSPlayerController player, Dictionary<string, string> item)
     {
         CCSPlayerPawn? pawn = player.PlayerPawn.Value;
@@ -220,18 +216,6 @@ public class PlayerColor : BasePlugin
                 color.Flags,
                 duration: color.Duration
             );
-        }
-    }
-    public void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var kvp in Config.PlayerColors)
-        {
-            var color = kvp.Value;
-
-            StoreApi.UnregisterItem(color.Id);
         }
     }
 }

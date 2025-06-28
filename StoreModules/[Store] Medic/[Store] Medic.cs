@@ -40,10 +40,6 @@ public class MedicPlugin : BasePlugin
             Server.PrecacheModel("weapons/w_eq_charge");
         });
     }
-    public override void Unload(bool hotReload)
-    {
-        UnregisterItems();
-    }
 
     private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
@@ -208,18 +204,6 @@ public class MedicPlugin : BasePlugin
                 medicItem.Price,
                 medicItem.Description,
                 duration: medicItem.Duration);
-        }
-    }
-    public void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-
-        foreach (var kvp in Config.MedicItems)
-        {
-            var medicItem = kvp.Value;
-            StoreApi.UnregisterItem(medicItem.Id);
         }
     }
 }

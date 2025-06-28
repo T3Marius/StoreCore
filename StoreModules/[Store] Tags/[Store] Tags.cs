@@ -468,7 +468,6 @@ public class Tags : BasePlugin, IPluginConfig<PluginConfig>
 
     public override void Unload(bool hotReload)
     {
-        UnregisterItems();
         UnhookUserMessage(118, OnMessage, HookMode.Pre);
     }
 
@@ -568,13 +567,6 @@ public class Tags : BasePlugin, IPluginConfig<PluginConfig>
         manager.CloseMenu(p);
     });
         manager.OpenMainMenu(player, menu);
-    }
-    private void UnregisterItems()
-    {
-        foreach (var tag in ModuleConfig.Tags.Values)
-        {
-            StoreApi.UnregisterItem(tag.Id);
-        }
     }
 }
 

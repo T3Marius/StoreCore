@@ -52,10 +52,6 @@ public class Trails : BasePlugin
             }
         });
     }
-    public override void Unload(bool hotReload)
-    {
-        UnregisterItems();
-    }
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
@@ -417,18 +413,6 @@ public class Trails : BasePlugin
                 trail.Flags,
                 duration: trail.Duration
             );
-        }
-    }
-    public void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var kvp in Config.Trails)
-        {
-            var trail = kvp.Value;
-
-            StoreApi.UnregisterItem(trail.Id);
         }
     }
 }

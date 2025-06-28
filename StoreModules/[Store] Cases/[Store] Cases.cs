@@ -52,7 +52,6 @@ public class Cases : BasePlugin
         }
         _caseTimers.Clear();
         _playerOpeningCase.Clear();
-        UnregisterItems();
     }
 
     private void OnServerPrecacheResourcesHandler(ResourceManifest manifest)
@@ -338,16 +337,6 @@ public class Cases : BasePlugin
                 storeCase.Flags,
                 isEquipable: false
             );
-        }
-    }
-    private void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var storeCase in Config.Cases)
-        {
-            StoreApi.UnregisterItem(storeCase.Id);
         }
     }
 }

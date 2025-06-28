@@ -74,10 +74,6 @@ public class Flags : BasePlugin
 
         return HookResult.Continue;
     }
-    public override void Unload(bool hotReload)
-    {
-        UnregisterItems();
-    }
     private void RegisterItems()
     {
         if (StoreApi == null)
@@ -98,18 +94,6 @@ public class Flags : BasePlugin
                 duration: flag.Duration,
                 isEquipable: false
                 );
-        }
-    }
-    private void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var kvp in Config.Flags)
-        {
-            var flag = kvp.Value;
-
-            StoreApi.UnregisterItem(flag.Id);
         }
     }
 }

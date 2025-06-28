@@ -21,10 +21,6 @@ public class VIPShop : BasePlugin
 
         StoreApi.OnPlayerPurchaseItem += OnPlayerPurchaseItem;
     }
-    public override void Unload(bool hotReload)
-    {
-        UnregisterItems();
-    }
     public void OnPlayerPurchaseItem(CCSPlayerController player, Dictionary<string, string> item)
     {
         foreach (var vip in Config.Vips.Values)
@@ -58,18 +54,6 @@ public class VIPShop : BasePlugin
                 isEquipable: false,
                 isSellable: false
             );
-        }
-    }
-    public void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var kvp in Config.Vips)
-        {
-            var vip = kvp.Value;
-
-            StoreApi.UnregisterItem(vip.Id);
         }
     }
 }

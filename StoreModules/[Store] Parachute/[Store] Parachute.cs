@@ -50,11 +50,6 @@ public class Parachute : BasePlugin
 
         StoreApi.OnItemPreview += OnItemPreview;
     }
-    public override void Unload(bool hotReload)
-    {
-        UnregisterItems();
-    }
-
 
     public void OnServerPrecacheResources(ResourceManifest manifest)
     {
@@ -228,18 +223,6 @@ public class Parachute : BasePlugin
                 parachute.Description,
                 parachute.Flags,
                 duration: parachute.Duration);
-        }
-    }
-    public void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var kvp in Config.Parachutes)
-        {
-            var parachute = kvp.Value;
-
-            StoreApi.UnregisterItem(parachute.Id);
         }
     }
 }

@@ -9,7 +9,7 @@ public class StoreConfig : BasePluginConfig
     public Credits_Multiplier Multiplier { get; set; } = new Credits_Multiplier();
     public Commands_Config Commands { get; set; } = new Commands_Config();
     public Permission_Config Permissions { get; set; } = new Permission_Config();
-
+    public Cleanup_Config Cleanup { get; set; } = new Cleanup_Config();
 }
 public class Permission_Config
 {
@@ -21,6 +21,7 @@ public class Permission_Config
     public List<string> ResetCredits { get; set; } = ["@css/root"];
     public List<string> AddVip { get; set; } = ["@css/root"];
     public List<string> RemoveVip { get; set; } = ["@css/root"];
+    public List<string> Cleanup { get; set; } = ["@css/root"];
 }
 public class Main_Config
 {
@@ -68,6 +69,7 @@ public class Commands_Config
     public List<string> ResetCredits { get; set; } = ["resetcredits", "rc"];
     public List<string> AddVip { get; set; } = ["addvip", "addvipstore"];
     public List<string> RemoveVip { get; set; } = ["removevip", "removevipstore"];
+    public List<string> Cleanup { get; set; } = ["cleanup", "cleanup_store", "store_cleanup"];
 }
 public class Database_Config
 {
@@ -76,4 +78,11 @@ public class Database_Config
     public string User { get; set; } = "user";
     public string Pass { get; set; } = "pass";
     public uint Port { get; set; } = 3306;
+}
+
+public class Cleanup_Config
+{
+    public bool EnableAutoCleanup { get; set; } = true;
+    public int CleanupIntervalMinutes { get; set; } = 30;
+    public bool LogOrphanedItems { get; set; } = true;
 }

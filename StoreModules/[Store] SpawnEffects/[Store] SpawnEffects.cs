@@ -23,10 +23,6 @@ public class SpawnEffects : BasePlugin
 
         RegisterItems();
     }
-    public override void Unload(bool hotReload)
-    {
-        UnregisterItems();
-    }
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
@@ -91,18 +87,6 @@ public class SpawnEffects : BasePlugin
                 isEquipable: false,
                 isSellable: false
             );
-        }
-    }
-    public void UnregisterItems()
-    {
-        if (StoreApi == null)
-            return;
-
-        foreach (var kvp in Config.SpawnEffects)
-        {
-            var vip = kvp.Value;
-
-            StoreApi.UnregisterItem(vip.Id);
         }
     }
 }
