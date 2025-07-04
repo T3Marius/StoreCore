@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
-		<OutputPath>bin\Release\addons\counterstrikesharp\plugins\[Store] BombSiteAnnonucer\</OutputPath>
+		<OutputPath>bin\Release\addons\counterstrikesharp\plugins\[Store] BombSiteAnnouncer\</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<Configuration>Release</Configuration>
 		<DebugType>none</DebugType>
